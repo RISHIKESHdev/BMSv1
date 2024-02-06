@@ -1,6 +1,8 @@
 package com.bms.transaction.cash;
 
 public class Currency {
+    public enum Denomination{TEN,TWENTY,FIFTY,HUNDRED,TWO_HUNDRED,FIVE_HUNDRED,TWO_THOUSAND};
+    private Denomination denomination;
     private double INRValue;
     private int count;
 
@@ -23,5 +25,13 @@ public class Currency {
 
     public void setCount(int count) {
         this.count = count;
+    }
+
+    public Denomination getDenomination() {
+        return denomination;
+    }
+
+    public void setDenomination(Denomination denomination) {
+        this.denomination = denomination;
     }
 }
