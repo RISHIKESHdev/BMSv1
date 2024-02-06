@@ -1,6 +1,7 @@
 package com.bms.people;
 
 import com.bms.accounts.Account;
+import com.bms.bank.Address;
 
 import java.util.List;
 
@@ -11,8 +12,8 @@ public class Customer extends User {
     private String CKYCVerificationId;
     private List<Account> linkedAccountList;
 
-    public Customer(String firstName, String middleName, String lastName, String emailId, String gender, int age, long mobileNumber, String password, long CIFNumber, String PANNumber, String CKYCVerificationDocument, String CKYCVerificationId) {
-        super(firstName, middleName, lastName, emailId, gender, age, mobileNumber, password);
+    public Customer(String firstName, String middleName, String lastName, String emailId, String gender, int age, long mobileNumber, String password, Address address, long CIFNumber, String PANNumber, String CKYCVerificationDocument, String CKYCVerificationId) {
+        super(firstName, middleName, lastName, emailId, gender, age, mobileNumber, password, address);
         this.CIFNumber = CIFNumber;
         this.PANNumber = PANNumber;
         this.CKYCVerificationDocument = CKYCVerificationDocument;

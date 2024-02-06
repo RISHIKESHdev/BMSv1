@@ -3,6 +3,7 @@ package com.bms.accounts;
 import com.bms.accounts.loan.Loan;
 import com.bms.people.Nominee;
 import com.bms.transaction.Transaction;
+import com.bms.transaction.card.Card;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -16,6 +17,7 @@ public abstract class Account {
     private List<Transaction> transactionList;
     private List<Loan> loanList;
     private List<Nominee> nomineeList;
+    private List<Card> cardList;
 
     public Account(long accountNumber, double currentBalance, double availableBalance, double creditScore, LocalDateTime accountInceptionDateTime) {
         this.accountNumber = accountNumber;
@@ -87,5 +89,13 @@ public abstract class Account {
 
     public void addNomineeList(Nominee nominee) {
         this.nomineeList.add(nominee);
+    }
+
+    public List<Card> getCardList() {
+        return cardList;
+    }
+
+    public void addCardList(Card card) {
+        this.cardList.add(card);
     }
 }

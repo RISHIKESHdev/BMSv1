@@ -1,6 +1,6 @@
 package com.bms.transaction.cash;
 
-public abstract class Currency {
-    private int INRValue;
+public class Currency {
+    private double INRValue;
     private int count;
 }

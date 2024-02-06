@@ -1,5 +1,7 @@
 package com.bms.people;
 
+import com.bms.bank.Address;
+
 public class Employee extends User{
     private int employeeId;
     private String employeeDesignation;
@@ -7,8 +9,8 @@ public class Employee extends User{
     private int yearOfExperience;
     private boolean isActive;
 
-    public Employee(String firstName, String middleName, String lastName, String emailId, String gender, int age, long mobileNumber, String password, int employeeId, String employeeDesignation, double employeeCTC, int yearOfExperience, boolean isActive) {
-        super(firstName, middleName, lastName, emailId, gender, age, mobileNumber, password);
+    public Employee(String firstName, String middleName, String lastName, String emailId, String gender, int age, long mobileNumber, String password, Address address, int employeeId, String employeeDesignation, double employeeCTC, int yearOfExperience, boolean isActive) {
+        super(firstName, middleName, lastName, emailId, gender, age, mobileNumber, password, address);
         this.employeeId = employeeId;
         this.employeeDesignation = employeeDesignation;
         this.employeeCTC = employeeCTC;
