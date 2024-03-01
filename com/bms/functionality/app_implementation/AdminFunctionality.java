@@ -28,4 +28,19 @@ class AdminFunctionality implements AdminInterface {
     public void changeEmployeeBranch() {
 
     }
+
+    @Override
+    public void signUp() {
+
+    }
+
+    @Override
+    public void signIn() {
+
+    }
+
+    @Override
+    public void signOut() {
+
+    }
 }

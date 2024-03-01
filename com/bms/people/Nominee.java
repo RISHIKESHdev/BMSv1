@@ -7,11 +7,11 @@ public class Nominee {
     private String emailId;
     private String gender;
     private int age;
-    private long mobileNumber;
+    private String mobileNumber;
     private String CKYCVerificationDocument;
     private String CKYCVerificationId;
 
-    public Nominee(String firstName, String middleName, String lastName, String emailId, String gender, int age, long mobileNumber, String CKYCVerificationDocument, String CKYCVerificationId) {
+    public Nominee(String firstName, String middleName, String lastName, String emailId, String gender, int age, String mobileNumber, String CKYCVerificationDocument, String CKYCVerificationId) {
         this.firstName = firstName;
         this.middleName = middleName;
         this.lastName = lastName;
@@ -75,7 +75,7 @@ public class Nominee {
         return mobileNumber;
     }
 
-    public void setMobileNumber(long mobileNumber) {
+    public void setMobileNumber(String mobileNumber) {
         this.mobileNumber = mobileNumber;
     }
 

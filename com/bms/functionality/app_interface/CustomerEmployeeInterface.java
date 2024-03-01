@@ -1,6 +1,6 @@
 package com.bms.functionality.app_interface;
 
-public interface CustomerEmployeeInterface {
+public interface CustomerEmployeeInterface extends UserInterface{
     public void addCard();
     public void deleteCard();
     public void addLoan();

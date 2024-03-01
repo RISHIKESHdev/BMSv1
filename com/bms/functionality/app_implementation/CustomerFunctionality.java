@@ -53,4 +53,19 @@ public class CustomerFunctionality implements CustomerInterface{
     public void addAccount() {
 
     }
+
+    @Override
+    public void signUp() {
+
+    }
+
+    @Override
+    public void signIn() {
+
+    }
+
+    @Override
+    public void signOut() {
+
+    }
 }

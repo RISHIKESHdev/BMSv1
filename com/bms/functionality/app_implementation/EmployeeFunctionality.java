@@ -13,4 +13,44 @@ public class EmployeeFunctionality implements EmployeeInterface {
     public void createAccount() {
 
     }
+
+    @Override
+    public void addCard() {
+
+    }
+
+    @Override
+    public void deleteCard() {
+
+    }
+
+    @Override
+    public void addLoan() {
+
+    }
+
+    @Override
+    public void addNominee() {
+
+    }
+
+    @Override
+    public void deleteNominee() {
+
+    }
+
+    @Override
+    public void signUp() {
+
+    }
+
+    @Override
+    public void signIn() {
+
+    }
+
+    @Override
+    public void signOut() {
+
+    }
 }

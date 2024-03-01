@@ -139,11 +139,10 @@ public class ProfileLogic implements ProfileInterface{
         return user;
     }
     private Nominee getNomineeInput(){
-         Nominee nominee=null;
+         Nominee nominee;
 
-        String firstName,middleName,lastName,emailId,gender,CKYCVerificationDocument,CKYCVerificationId;
+        String firstName,middleName,lastName,emailId,gender,CKYCVerificationDocument,CKYCVerificationId,mobileNumber;
         int age;
-        long mobileNumber;
 
         System.out.print("First Name: ");firstName=in.next();
         System.out.print("Middle Name: ");middleName=in.next();
@@ -151,7 +150,7 @@ public class ProfileLogic implements ProfileInterface{
         System.out.print("Email Id: ");emailId=in.next();
         System.out.print("Gender: ");gender=in.next();
         System.out.print("Age: ");age=in.nextInt();
-        System.out.print("Mobile Number: ");mobileNumber=in.nextInt();
+        System.out.print("Mobile Number: ");mobileNumber=in.next();
         System.out.print("CKYC Verification Document: ");CKYCVerificationDocument=in.next();
         System.out.print("CKYC Verification Id: ");CKYCVerificationId=in.next();
 
