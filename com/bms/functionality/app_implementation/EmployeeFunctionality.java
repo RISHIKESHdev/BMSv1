@@ -40,11 +40,6 @@ public class EmployeeFunctionality implements EmployeeInterface {
     }
 
     @Override
-    public void signUp() {
-
-    }
-
-    @Override
     public void signIn() {
 
     }

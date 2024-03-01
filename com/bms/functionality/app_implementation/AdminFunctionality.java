@@ -30,11 +30,6 @@ class AdminFunctionality implements AdminInterface {
     }
 
     @Override
-    public void signUp() {
-
-    }
-
-    @Override
     public void signIn() {
 
     }

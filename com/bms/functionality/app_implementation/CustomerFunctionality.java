@@ -55,11 +55,6 @@ public class CustomerFunctionality implements CustomerInterface{
     }
 
     @Override
-    public void signUp() {
-
-    }
-
-    @Override
     public void signIn() {
 
     }
