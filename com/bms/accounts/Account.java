@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public abstract class Account {
-    private long accountNumber;
+    private Double accountNumber;
     private double currentBalance;
     private double availableBalance;
     private double creditScore;
@@ -19,19 +19,18 @@ public abstract class Account {
     private List<Nominee> nomineeList;
     private List<Card> cardList;
 
-    public Account(long accountNumber, double currentBalance, double availableBalance, double creditScore, LocalDateTime accountInceptionDateTime) {
-        this.accountNumber = accountNumber;
+    public Account(double currentBalance, double availableBalance, double creditScore, LocalDateTime accountInceptionDateTime) {
         this.currentBalance = currentBalance;
         this.availableBalance = availableBalance;
         this.creditScore = creditScore;
         this.accountInceptionDateTime = accountInceptionDateTime;
     }
 
-    public long getAccountNumber() {
+    public Double getAccountNumber() {
         return accountNumber;
     }
 
-    public void setAccountNumber(long accountNumber) {
+    public void setAccountNumber(Double accountNumber) {
         this.accountNumber = accountNumber;
     }
 

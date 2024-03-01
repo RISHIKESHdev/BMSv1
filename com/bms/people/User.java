@@ -3,17 +3,18 @@ package com.bms.people;
 import com.bms.bank.Address;
 
 public abstract class User {
+    private int userId;
     private String firstName;
     private String middleName;
     private String lastName;
     private String emailId;
     private String gender;
     private int age;
-    private long mobileNumber;
+    private String mobileNumber;
     private String password;
     private Address address;
 
-    public User(String firstName, String middleName, String lastName, String emailId, String gender, int age, long mobileNumber, String password,Address address) {
+    public User(String firstName, String middleName, String lastName, String emailId, String gender, int age, String mobileNumber, String password) {
         this.firstName = firstName;
         this.middleName = middleName;
         this.lastName = lastName;
@@ -24,7 +25,6 @@ public abstract class User {
         this.password = password;
         this.address = address;
     }
-
     public String getFirstName() {
         return firstName;
     }
@@ -73,11 +73,11 @@ public abstract class User {
         this.age = age;
     }
 
-    public long getMobileNumber() {
+    public String getMobileNumber() {
         return mobileNumber;
     }
 
-    public void setMobileNumber(long mobileNumber) {
+    public void setMobileNumber(String mobileNumber) {
         this.mobileNumber = mobileNumber;
     }
 
@@ -94,5 +94,13 @@ public abstract class User {
 
     public void setAddress(Address address) {
         this.address = address;
+    }
+
+    public int getUserId() {
+        return userId;
+    }
+
+    public void setUserId(int userId) {
+        this.userId = userId;
     }
 }

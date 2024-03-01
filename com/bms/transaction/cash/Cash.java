@@ -5,7 +5,16 @@ import com.bms.transaction.PaymentMode;
 import java.util.List;
 
 public class Cash implements PaymentMode {
+    private double transactionId;
     private List<Currency> currencyList;
+
+    public double getTransactionId() {
+        return transactionId;
+    }
+
+    public void setTransactionId(double transactionId) {
+        this.transactionId = transactionId;
+    }
 
     public Cash(List<Currency> currencyList) {
         this.currencyList = currencyList;

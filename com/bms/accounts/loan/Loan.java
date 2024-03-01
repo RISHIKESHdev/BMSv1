@@ -3,12 +3,13 @@ package com.bms.accounts.loan;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Loan {
+public abstract class Loan {
     public enum LoanType{SECURED,UNSECURED};
     private double loanAmount;
+    private double loanId;
+    private double accountNumber;
     private double interestRate;
     private LoanType loanType;
-    private List<Collateral> collateralList;
 
     public Loan(double loanAmount, double interestRate , LoanType loanType) {
         this.loanAmount = loanAmount;
@@ -40,14 +41,19 @@ public class Loan {
         this.loanType = loanType;
     }
 
-    public List<Collateral> getCollateralList() {
-        return collateralList;
+    public double getLoanId() {
+        return loanId;
     }
 
-    public void addCollateralList(Collateral collateral) {
-        if(this.collateralList==null){
-            this.collateralList = new ArrayList<>();
-        }
-        this.collateralList.add(collateral);
+    public void setLoanId(double loanId) {
+        this.loanId = loanId;
+    }
+
+    public double getAccountNumber() {
+        return accountNumber;
+    }
+
+    public void setAccountNumber(double accountNumber) {
+        this.accountNumber = accountNumber;
     }
 }

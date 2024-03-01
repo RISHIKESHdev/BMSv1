@@ -7,8 +7,8 @@ public class FixedDepositAccount extends Account{
     private LocalDateTime matureDateTime;
     private double rateOfInterest;
 
-    public FixedDepositAccount(long accountNumber, double currentBalance, double availableBalance, double creditScore, LocalDateTime accountInceptionDate, int tenure, LocalDateTime matureDateTime, double rateOfInterest) {
-        super(accountNumber, currentBalance, availableBalance, creditScore, accountInceptionDate);
+    public FixedDepositAccount(double currentBalance, double availableBalance, double creditScore, LocalDateTime accountInceptionDate, int tenure, LocalDateTime matureDateTime, double rateOfInterest) {
+        super(currentBalance, availableBalance, creditScore, accountInceptionDate);
         this.tenure = tenure;
         this.matureDateTime = matureDateTime;
         this.rateOfInterest = rateOfInterest;

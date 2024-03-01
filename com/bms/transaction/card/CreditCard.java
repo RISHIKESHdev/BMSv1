@@ -1,13 +1,14 @@
 package com.bms.transaction.card;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 public class CreditCard extends Card{
     private int interestFreeCreditDays;
     private double rateOfInterest;
 
-    public CreditCard(long cardNumber, String cardHolderName, LocalDate inceptionDate, LocalDate expiryDate, String paymentGateway, int CVV, int pinNumber, int interestFreeCreditDays, double rateOfInterest) {
-        super(cardNumber, cardHolderName, inceptionDate, expiryDate, paymentGateway, CVV, pinNumber);
+    public CreditCard(String cardName, LocalDateTime inceptionDate, boolean isActive, String paymentGateway, int interestFreeCreditDays, double rateOfInterest) {
+        super(cardName, inceptionDate, isActive, paymentGateway);
         this.interestFreeCreditDays = interestFreeCreditDays;
         this.rateOfInterest = rateOfInterest;
     }

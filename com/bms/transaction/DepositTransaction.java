@@ -3,31 +3,20 @@ package com.bms.transaction;
 import java.time.LocalDateTime;
 
 public class DepositTransaction extends Transaction{
-    private long beneficiaryAccountNumber;
-    private long beneficiaryIFSCCode;
+    private String depositIFSCCode;
     private String depositLocation;
 
-    public DepositTransaction(String transactionId, LocalDateTime transactionDateTime, double transactionAmount, PaymentMode payModeDetail, long beneficiaryAccountNumber, long beneficiaryIFSCCode, String depositLocation) {
-        super(transactionId, transactionDateTime, transactionAmount, payModeDetail);
-        this.beneficiaryAccountNumber = beneficiaryAccountNumber;
-        this.beneficiaryIFSCCode = beneficiaryIFSCCode;
+    public DepositTransaction(LocalDateTime transactionDateTime, double transactionAmount, PaymentMode payModeDetail, String depositIFSCCode, String depositLocation) {
+        super(transactionDateTime, transactionAmount, payModeDetail);
+        this.depositIFSCCode = depositIFSCCode;
         this.depositLocation = depositLocation;
     }
-
-    public long getBeneficiaryAccountNumber() {
-        return beneficiaryAccountNumber;
+    public String getDepositIFSCCode() {
+        return depositIFSCCode;
     }
 
-    public void setBeneficiaryAccountNumber(long beneficiaryAccountNumber) {
-        this.beneficiaryAccountNumber = beneficiaryAccountNumber;
-    }
-
-    public long getBeneficiaryIFSCCode() {
-        return beneficiaryIFSCCode;
-    }
-
-    public void setBeneficiaryIFSCCode(long beneficiaryIFSCCode) {
-        this.beneficiaryIFSCCode = beneficiaryIFSCCode;
+    public void setDepositIFSCCode(String depositIFSCCode) {
+        this.depositIFSCCode = depositIFSCCode;
     }
 
     public String getDepositLocation() {

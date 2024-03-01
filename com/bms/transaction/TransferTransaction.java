@@ -1,29 +1,35 @@
 package com.bms.transaction;
 
 import java.time.LocalDateTime;
+import java.util.Scanner;
 
 public class TransferTransaction extends Transaction{
     public enum TransactionType{NEFT,IMPS};
-    private long beneficiaryAccountNumber;
+    private Double beneficiaryAccountNumber;
     private String beneficiaryIFSCCode;
-    private long payeeAccountNumber;
-    private String payeeIFSCCode;
     private TransactionType transactionType;
 
-    public TransferTransaction(String transactionId, LocalDateTime transactionDateTime, double transactionAmount, PaymentMode payModeDetail, long beneficiaryAccountNumber, String beneficiaryIFSCCode, long payeeAccountNumber, String payeeIFSCCode,TransactionType transactionType) {
-        super(transactionId, transactionDateTime, transactionAmount, payModeDetail);
+    public TransferTransaction(LocalDateTime transactionDateTime, double transactionAmount, PaymentMode payModeDetail,double beneficiaryAccountNumber, String beneficiaryIFSCCode,TransactionType transactionType) {
+        super(transactionDateTime, transactionAmount, payModeDetail);
         this.beneficiaryAccountNumber = beneficiaryAccountNumber;
         this.beneficiaryIFSCCode = beneficiaryIFSCCode;
-        this.payeeAccountNumber = payeeAccountNumber;
-        this.payeeIFSCCode = payeeIFSCCode;
         this.transactionType = transactionType;
     }
 
-    public long getBeneficiaryAccountNumber() {
+    public static TransactionType inputTransactionType(Scanner in){
+        int transactionCode;
+        System.out.println("Trsaction Type:- ");
+        System.out.println("1. NEFT");
+        System.out.println("2. IMPS");
+        System.out.println("Select A Transaction Type From Above: ");transactionCode=in.nextInt();
+
+        return (transactionCode==1)?(TransactionType.NEFT):(TransactionType.IMPS);
+    }
+    public double getBeneficiaryAccountNumber() {
         return beneficiaryAccountNumber;
     }
 
-    public void setBeneficiaryAccountNumber(long beneficiaryAccountNumber) {
+    public void setBeneficiaryAccountNumber(double beneficiaryAccountNumber) {
         this.beneficiaryAccountNumber = beneficiaryAccountNumber;
     }
 
@@ -33,22 +39,6 @@ public class TransferTransaction extends Transaction{
 
     public void setBeneficiaryIFSCCode(String beneficiaryIFSCCode) {
         this.beneficiaryIFSCCode = beneficiaryIFSCCode;
-    }
-
-    public long getPayeeAccountNumber() {
-        return payeeAccountNumber;
-    }
-
-    public void setPayeeAccountNumber(long payeeAccountNumber) {
-        this.payeeAccountNumber = payeeAccountNumber;
-    }
-
-    public String getPayeeIFSCCode() {
-        return payeeIFSCCode;
-    }
-
-    public void setPayeeIFSCCode(String payeeIFSCCode) {
-        this.payeeIFSCCode = payeeIFSCCode;
     }
 
     public TransactionType getTransactionType() {

@@ -1,13 +1,14 @@
 package com.bms.transaction.card;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 public class CoBrandedCreditCard extends CreditCard{
     private String merchantName;
     private double merchantOfferPercentage;
 
-    public CoBrandedCreditCard(long cardNumber, String cardHolderName, LocalDate inceptionDate, LocalDate expiryDate, String paymentGateway, int CVV, int pinNumber, int interestFreeCreditDays, double rateOfInterest, String merchantName, double merchantOfferPercentage) {
-        super(cardNumber, cardHolderName, inceptionDate, expiryDate, paymentGateway, CVV, pinNumber, interestFreeCreditDays, rateOfInterest);
+    public CoBrandedCreditCard(String cardName, LocalDateTime inceptionDate, boolean isActive, String paymentGateway, int interestFreeCreditDays, double rateOfInterest, String merchantName, double merchantOfferPercentage) {
+        super(cardName, inceptionDate, isActive, paymentGateway, interestFreeCreditDays, rateOfInterest);
         this.merchantName = merchantName;
         this.merchantOfferPercentage = merchantOfferPercentage;
     }

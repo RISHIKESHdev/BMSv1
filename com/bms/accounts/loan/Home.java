@@ -1,11 +1,12 @@
 package com.bms.accounts.loan;
 
-public class Home implements Collateral{
+public class Home extends  Loan implements Collateral{
     private int totalArea;
     private int builtUpArea;
     private int totalNoOfFloors;
     private int totalValue;
-    public Home(int totalArea, int buildUpArea, int totalNoOfFloors,int totalValue){
+    public Home(double loanAmount, double interestRate , LoanType loanType,int totalArea, int buildUpArea, int totalNoOfFloors,int totalValue){
+        super( loanAmount,  interestRate ,  loanType);
         this.totalArea=totalArea;
         this.builtUpArea=buildUpArea;
         this.totalNoOfFloors=totalNoOfFloors;

@@ -1,12 +1,21 @@
 package com.bms.transaction;
 
 public class Cheque implements PaymentMode{
+    private double transactionId;
     private String beneficiaryName;
     private long chequeNumber;
 
     public Cheque(String beneficiaryName, long chequeNumber) {
         this.beneficiaryName = beneficiaryName;
         this.chequeNumber = chequeNumber;
+    }
+
+    public double getTransactionId() {
+        return transactionId;
+    }
+
+    public void setTransactionId(double transactionId) {
+        this.transactionId = transactionId;
     }
 
     public String getBeneficiaryName() {

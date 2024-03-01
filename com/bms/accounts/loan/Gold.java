@@ -1,10 +1,11 @@
 package com.bms.accounts.loan;
 
-public class Gold implements Collateral{
+public class Gold extends Loan implements Collateral{
     private String goldPurity;
-    private String goldValuePerGram;
+    private double goldValuePerGram;
     private double weightInGram;
-    public Gold(String goldPurity,String goldValuePerGram,double weightInGram){
+    public Gold(double loanAmount, double interestRate , LoanType loanType,String goldPurity,double goldValuePerGram,double weightInGram){
+        super( loanAmount,  interestRate ,  loanType);
         this.goldPurity=goldPurity;
         this.goldValuePerGram=goldValuePerGram;
         this.weightInGram=weightInGram;
@@ -26,11 +27,11 @@ public class Gold implements Collateral{
         this.goldPurity = goldPurity;
     }
 
-    public String getGoldValuePerGram() {
+    public double getGoldValuePerGram() {
         return goldValuePerGram;
     }
 
-    public void setGoldValuePerGram(String goldValuePerGram) {
+    public void setGoldValuePerGram(double goldValuePerGram) {
         this.goldValuePerGram = goldValuePerGram;
     }
 }

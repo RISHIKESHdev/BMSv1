@@ -1,19 +1,24 @@
 package com.bms.bank;
 
 public class Address {
+    private int AddressId;
     private String addressLineOne;
     private String addressLineTwo;
     private String addressLineThree;
     private String landMark;
     private String city;
+    private String state;
+    private String country;
     private long pinCode;
 
-    public Address(String addressLineOne, String addressLineTwo, String addressLineThree, String landMark, String city, long pinCode) {
+    public Address(String addressLineOne, String addressLineTwo, String addressLineThree, String landMark, String city,String state,String country, long pinCode) {
         this.addressLineOne = addressLineOne;
         this.addressLineTwo = addressLineTwo;
         this.addressLineThree = addressLineThree;
         this.landMark = landMark;
         this.city = city;
+        this.state=state;
+        this.country=country;
         this.pinCode = pinCode;
     }
 
@@ -57,11 +62,35 @@ public class Address {
         this.city = city;
     }
 
+    public String getState() {
+        return state;
+    }
+
+    public void setState(String state) {
+        this.state = state;
+    }
+
+    public String getCountry() {
+        return country;
+    }
+
+    public void setCountry(String country) {
+        this.country = country;
+    }
+
     public long getPinCode() {
         return pinCode;
     }
 
     public void setPinCode(long pinCode) {
         this.pinCode = pinCode;
+    }
+
+    public int getAddressId() {
+        return AddressId;
+    }
+
+    public void setAddressId(int addressId) {
+        AddressId = addressId;
     }
 }

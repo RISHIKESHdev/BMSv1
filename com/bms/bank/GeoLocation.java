@@ -1,6 +1,7 @@
 package com.bms.bank;
 
 public class GeoLocation {
+    private int geoLocationId;
     private double latitude;
     private double longitude;
 
@@ -23,5 +24,13 @@ public class GeoLocation {
 
     public void setLongitude(double longitude) {
         this.longitude = longitude;
+    }
+
+    public int getGeoLocationId() {
+        return geoLocationId;
+    }
+
+    public void setGeoLocationId(int geoLocationId) {
+        this.geoLocationId = geoLocationId;
     }
 }

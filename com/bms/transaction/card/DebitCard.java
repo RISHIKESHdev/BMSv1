@@ -1,12 +1,13 @@
 package com.bms.transaction.card;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 public class DebitCard extends Card{
     private double withdrawalLimit;
 
-    public DebitCard(long cardNumber, String cardHolderName, LocalDate inceptionDate, LocalDate expiryDate, String paymentGateway, int CVV, int pinNumber, double withdrawalLimit) {
-        super(cardNumber, cardHolderName, inceptionDate, expiryDate, paymentGateway, CVV, pinNumber);
+    public DebitCard(String cardName, LocalDateTime inceptionDate, boolean isActive, String paymentGateway,double withdrawalLimit) {
+        super(cardName, inceptionDate, isActive, paymentGateway);
         this.withdrawalLimit = withdrawalLimit;
     }
 

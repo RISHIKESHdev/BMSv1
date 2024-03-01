@@ -6,7 +6,8 @@ public class Currency {
     private double INRValue;
     private int count;
 
-    public Currency(double INRValue, int count) {
+    public Currency(Denomination denomination,double INRValue, int count) {
+        this.denomination=denomination;
         this.INRValue = INRValue;
         this.count = count;
     }

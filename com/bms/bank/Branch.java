@@ -8,18 +8,17 @@ import java.util.List;
 public class Branch {
     private String IFSCCode;
     private String branchName;
+    private String bankCode;
     private Address address;
     private long mobileNumber;
     private GeoLocation geoLocation;
     private List<Customer> customerList;
     private List<Employee> employeeList;
 
-    public Branch(String IFSCCode, String branchName, Address address, long mobileNumber, GeoLocation geoLocation) {
-        this.IFSCCode = IFSCCode;
+    public Branch(String branchName,String bankCode,long mobileNumber) {
         this.branchName = branchName;
-        this.address = address;
+        this.bankCode=bankCode;
         this.mobileNumber = mobileNumber;
-        this.geoLocation = geoLocation;
     }
 
     public String getIFSCCode() {
@@ -76,5 +75,13 @@ public class Branch {
 
     public void setEmployeeList(Employee employee) {
         this.employeeList.add(employee);
+    }
+
+    public String getBankCode() {
+        return bankCode;
+    }
+
+    public void setBankCode(String bankCode) {
+        this.bankCode = bankCode;
     }
 }

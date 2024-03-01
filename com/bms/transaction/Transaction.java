@@ -3,23 +3,31 @@ package com.bms.transaction;
 import java.time.LocalDateTime;
 
 public abstract class Transaction {
-    private String transactionId;
+    private int transactionId;
     private LocalDateTime transactionDateTime;
     private double transactionAmount;
-    PaymentMode payModeDetail;
+    private String payMode;
+    private PaymentMode payModeDetail;
 
-    public Transaction(String transactionId, LocalDateTime transactionDateTime, double transactionAmount, PaymentMode payModeDetail) {
-        this.transactionId = transactionId;
+    public Transaction(LocalDateTime transactionDateTime, double transactionAmount, PaymentMode payModeDetail) {
         this.transactionDateTime = transactionDateTime;
         this.transactionAmount = transactionAmount;
         this.payModeDetail = payModeDetail;
     }
 
-    public String getTransactionId() {
+    public String getPayMode() {
+        return payMode;
+    }
+
+    public void setPayMode(String payMode) {
+        this.payMode = payMode;
+    }
+
+    public int getTransactionId() {
         return transactionId;
     }
 
-    public void setTransactionId(String transactionId) {
+    public void setTransactionId(int transactionId) {
         this.transactionId = transactionId;
     }
 

@@ -3,27 +3,18 @@ package com.bms.people;
 import com.bms.bank.Address;
 
 public class Employee extends User{
-    private int employeeId;
     private String employeeDesignation;
     private double employeeCTC;
     private int yearOfExperience;
     private boolean isActive;
+    private double employeeId;
 
-    public Employee(String firstName, String middleName, String lastName, String emailId, String gender, int age, long mobileNumber, String password, Address address, int employeeId, String employeeDesignation, double employeeCTC, int yearOfExperience, boolean isActive) {
-        super(firstName, middleName, lastName, emailId, gender, age, mobileNumber, password, address);
-        this.employeeId = employeeId;
+    public Employee(String firstName, String middleName, String lastName, String emailId, String gender, int age, String mobileNumber, String password, String employeeDesignation, double employeeCTC, int yearOfExperience, boolean isActive) {
+        super(firstName, middleName, lastName, emailId, gender, age, mobileNumber, password);
         this.employeeDesignation = employeeDesignation;
         this.employeeCTC = employeeCTC;
         this.yearOfExperience = yearOfExperience;
         this.isActive = isActive;
-    }
-
-    public int getEmployeeId() {
-        return employeeId;
-    }
-
-    public void setEmployeeId(int employeeId) {
-        this.employeeId = employeeId;
     }
 
     public String getEmployeeDesignation() {
@@ -56,5 +47,13 @@ public class Employee extends User{
 
     public void setActive(boolean active) {
         isActive = active;
+    }
+
+    public double getEmployeeId() {
+        return employeeId;
+    }
+
+    public void setEmployeeId(double employeeId) {
+        this.employeeId = employeeId;
     }
 }

@@ -7,8 +7,8 @@ public class SavingAccount extends Account {
     private double withdrawalLimit;
     private double rateOfInterest;
 
-    public SavingAccount(long accountNumber, double currentBalance, double availableBalance, double creditScore, LocalDateTime accountInceptionDate, double minimumAccountBalance, double withdrawalLimit, double rateOfInterest) {
-        super(accountNumber, currentBalance, availableBalance, creditScore, accountInceptionDate);
+    public SavingAccount(double currentBalance, double availableBalance, double creditScore, LocalDateTime accountInceptionDate, double minimumAccountBalance, double withdrawalLimit, double rateOfInterest) {
+        super(currentBalance, availableBalance, creditScore, accountInceptionDate);
         this.minimumAccountBalance = minimumAccountBalance;
         this.withdrawalLimit = withdrawalLimit;
         this.rateOfInterest = rateOfInterest;

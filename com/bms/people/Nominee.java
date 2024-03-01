@@ -71,7 +71,7 @@ public class Nominee {
         this.age = age;
     }
 
-    public long getMobileNumber() {
+    public String getMobileNumber() {
         return mobileNumber;
     }
 
