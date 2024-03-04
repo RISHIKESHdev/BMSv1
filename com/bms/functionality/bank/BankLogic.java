@@ -30,7 +30,7 @@ public class BankLogic implements BankInterface{
         bankCode=CommonConstant.BANK_CODE;
         bankType=CommonConstant.BANK_TYPE;
 
-        bank=new Bank(bankIdentificationNumber,bankName,bankCode,bankType);
+        bank=new Bank(bankIdentificationNumber,bankName,bankType,bankCode);
 
         return bank;
     }

@@ -1,6 +1,8 @@
 package com.bms.functionality.app_interface;
 
+import com.bms.people.User;
+
 public interface UserInterface {
-    public void signIn();
+    public User signIn(int profileCode);
     public void signOut();
 }

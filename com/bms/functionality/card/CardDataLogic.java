@@ -8,13 +8,17 @@ import com.bms.transaction.card.CoBrandedCreditCard;
 import com.bms.transaction.card.CreditCard;
 import com.bms.transaction.card.DebitCard;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.time.ZoneId;
+import java.sql.*;
+import java.util.ArrayList;
 
 public class CardDataLogic {
+    private ArrayList<Double> customerAccountNumbers;
+    public CardDataLogic(){
+
+    }
+    public CardDataLogic(ArrayList<Double> customerAccountNumbers){
+        this.customerAccountNumbers=customerAccountNumbers;
+    }
     boolean registerCardRecord(Card card){
         boolean isCardInserted;
 
@@ -23,6 +27,50 @@ public class CardDataLogic {
         else isCardInserted=insertDebitCard((DebitCard) card);
 
         return isCardInserted;
+    }
+    boolean displayActiveCard(Connection connection,double accountNumber){
+        boolean isRecordAvailable=false;
+
+        try(PreparedStatement ps =connection.prepareStatement(CardSQLQuery.SELECT_ACTIVE_CARD)){
+            ps.setDouble(1,accountNumber);
+            ResultSet rs=ps.executeQuery();
+            while(rs.next()){
+                isRecordAvailable=true;
+                System.out.println(rs.getDouble("card_Number"));
+            }
+        }catch(SQLException e){
+            System.out.println(e.getMessage());
+        }
+
+        return isRecordAvailable;
+    }
+    boolean deactivateCardRecord(){
+        boolean isCardDeactivated=false;
+        double accountNumber,cardNumber;
+
+        AccountLogic accountLogic  = new AccountLogic(customerAccountNumbers);
+        CardLogics cardLogic =new CardLogics();
+
+        try(Connection connection=MySQLConnection.connect()){
+            if(connection!=null){
+                connection.setAutoCommit(false);
+                accountNumber=accountLogic.getAccountNumberOnUserRequest(connection);
+                cardNumber=cardLogic.getCardNumber(connection,accountNumber);
+                if(accountNumber!=0 && cardNumber!=0){
+                    try(PreparedStatement ps = connection.prepareStatement(CardSQLQuery.UPDATE_DEACTIVATE_CARD)){
+                        ps.setDouble(1,cardNumber);
+                        int rs= ps.executeUpdate();
+                        isCardDeactivated=rs>0;
+                    }
+                }
+                if(isCardDeactivated) connection.commit();
+                else connection.rollback();
+            }
+        }catch (SQLException e){
+            System.out.println(e.getMessage());
+        }
+
+        return isCardDeactivated;
     }
     private int generateRandomCVV(Connection connection){
         int cvv = 0;
@@ -57,24 +105,26 @@ public class CardDataLogic {
         int cvv,pinNumber;
         double cardNumber,accountNumber;
 
-        AccountLogic accountLogic  = new AccountLogic();
+        AccountLogic accountLogic  = new AccountLogic(customerAccountNumbers);
 
         cvv=generateRandomCVV(connection);
         pinNumber=generateRandomPinNumber(connection);
         accountNumber=accountLogic.getAccountNumberOnUserRequest(connection);
 
         if(accountNumber!=0 && pinNumber!=0 && cvv!=0){
-            try(PreparedStatement ps = connection.prepareStatement(CardSQLQuery.INSERT_CARD)){
+            try(PreparedStatement ps = connection.prepareStatement(CardSQLQuery.INSERT_CARD, Statement.RETURN_GENERATED_KEYS)){
                 ps.setDouble(1,accountNumber);
                 ps.setString(2,card.getCardHolderName());
-                ps.setString(3, Main.dbDateTimeFormat.format(card.getInceptionDate()));
-                ps.setString(4,Main.dbDateTimeFormat.format(Main.currentDateTime.plusYears(8)));
+                ps.setString(3, Main.currentDateTime.format(Main.dbDateTimeFormat));
+                ps.setString(4, Main.currentDateTime.plusYears(8).format(Main.dbDateTimeFormat));
                 ps.setString(5,card.getPaymentGateway());
                 ps.setInt(6,cvv);
                 ps.setInt(7,pinNumber);
                 int rs=ps.executeUpdate();
-                if(rs>0 && ps.getGeneratedKeys().next()){
-                    cardNumber=ps.getGeneratedKeys().getDouble(1);
+                if(rs>0){
+                    ResultSet rSet = ps.getGeneratedKeys();
+                    rSet.next();
+                    cardNumber=rSet.getDouble(1);
                     card.setCardNumber(cardNumber);
                     isCardInserted=true;
                 }
@@ -100,6 +150,11 @@ public class CardDataLogic {
                         isCreditCardInserted = rs>0;
                     }
                 }
+                if(isCreditCardInserted){
+                    connection.commit();
+                }else{
+                    connection.rollback();
+                }
             }
         }catch(SQLException e){
             System.out.println(e.getMessage());
@@ -120,6 +175,11 @@ public class CardDataLogic {
                         int rs = ps.executeUpdate();
                         isDebitCardInserted = rs>0;
                     }
+                }
+                if(isDebitCardInserted){
+                    connection.commit();
+                }else{
+                    connection.rollback();
                 }
             }
         }catch(SQLException e){
@@ -143,6 +203,11 @@ public class CardDataLogic {
                         isCoBrandCreditCardInserted = rs>0;
                     }
                 }
+                if(isCoBrandCreditCardInserted){
+                    connection.commit();
+                }else{
+                    connection.rollback();
+                }
             }
         }catch(SQLException e){
             System.out.println(e.getMessage());
@@ -150,16 +215,17 @@ public class CardDataLogic {
 
         return isCoBrandCreditCardInserted;
     }
-    CreditCard getCreditCardMasterById(){
+    CreditCard getCreditCardMasterById(int cardId){
         CreditCard creditCard = null;
 
         try(Connection connection = MySQLConnection.connect()){
             if(connection !=null){
                 connection.setAutoCommit(false);
                 try(PreparedStatement ps = connection.prepareStatement(CardSQLQuery.SELECT_CREDIT_CARD_MASTER_BY_ID)){
+                    ps.setInt(1,cardId);
                     ResultSet rs = ps.executeQuery();
                     if(rs.next()){
-                        creditCard=new CreditCard(rs.getString(1), rs.getDate(2).toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime(), true, rs.getString(3), rs.getInt(4),rs.getDouble(5));
+                        creditCard=new CreditCard(rs.getString(1), rs.getDate(2).toLocalDate().atStartOfDay(), true, rs.getString(3), rs.getInt(4),rs.getDouble(5));
                     }
                 }
             }
@@ -169,16 +235,17 @@ public class CardDataLogic {
 
         return creditCard;
     }
-    DebitCard getDebitCardMasterById(){
+    DebitCard getDebitCardMasterById(int cardId){
         DebitCard debitCard = null;
 
         try(Connection connection = MySQLConnection.connect()){
             if(connection !=null){
                 connection.setAutoCommit(false);
                 try(PreparedStatement ps = connection.prepareStatement(CardSQLQuery.SELECT_DEBIT_CARD_MASTER_BY_ID)){
+                    ps.setInt(1,cardId);
                     ResultSet rs = ps.executeQuery();
                     if(rs.next()){
-                        debitCard=new DebitCard(rs.getString(1), rs.getDate(2).toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime(), true, rs.getString(3),rs.getDouble(4));
+                        debitCard=new DebitCard(rs.getString(1), rs.getDate(2).toLocalDate().atStartOfDay(), true, rs.getString(3),rs.getDouble(4));
                     }
                 }
             }
@@ -188,16 +255,17 @@ public class CardDataLogic {
 
         return debitCard;
     }
-    CoBrandedCreditCard getCoBrandCreditCardMasterById(){
+    CoBrandedCreditCard getCoBrandCreditCardMasterById(int cardId){
         CoBrandedCreditCard coBrandCreditCard=null;
 
         try(Connection connection = MySQLConnection.connect()){
             if(connection !=null){
                 connection.setAutoCommit(false);
                 try(PreparedStatement ps = connection.prepareStatement(CardSQLQuery.SELECT_CO_BRAND_CREDIT_CARD_MASTER_BY_ID)){
+                    ps.setInt(1,cardId);
                     ResultSet rs = ps.executeQuery();
                     if(rs.next()){
-                        coBrandCreditCard=new CoBrandedCreditCard(rs.getString(1), rs.getDate(2).toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime(), true, rs.getString(3),rs.getInt(4),rs.getDouble(5),rs.getString(6),rs.getDouble(7));
+                        coBrandCreditCard=new CoBrandedCreditCard(rs.getString(1), rs.getDate(2).toLocalDate().atStartOfDay(), true, rs.getString(3),rs.getInt(4),rs.getDouble(5),rs.getString(6),rs.getDouble(7));
                     }
                 }
             }
@@ -270,7 +338,7 @@ public class CardDataLogic {
         try(Connection connection = MySQLConnection.connect()){
             if(connection !=null){
                 connection.setAutoCommit(false);
-                try(PreparedStatement ps = connection.prepareStatement(CardSQLQuery.UPDATE_DEACTIVATE_CARD)){
+                try(PreparedStatement ps = connection.prepareStatement(CardSQLQuery.UPDATE_DEACTIVATE_MASTER_CARD)){
                     ps.setInt(1,cardId);
                     int rs=ps.executeUpdate();
                     if(rs>0){
@@ -294,12 +362,14 @@ public class CardDataLogic {
         try(Connection connection = MySQLConnection.connect()) {
             if(connection != null){
                 connection.setAutoCommit(false);
-                try(PreparedStatement ps = connection.prepareStatement(CardSQLQuery.INSERT_CARD_MASTER_QUERY)){
+                try(PreparedStatement ps = connection.prepareStatement(CardSQLQuery.INSERT_CARD_MASTER_QUERY, Statement.RETURN_GENERATED_KEYS)){
                     ps.setString(1, debitCard.getCardName());
                     ps.setString(2, debitCard.getPaymentGateway());
                     int rs = ps.executeUpdate();
-                    if(rs>0 && ps.getGeneratedKeys().next()){
-                        cardId = ps.getGeneratedKeys().getInt(1);
+                    if(rs>0){
+                        ResultSet rSet = ps.getGeneratedKeys();
+                        rSet.next();
+                        cardId = rSet.getInt(1);
                     }
                 }
                 if(cardId>0){
@@ -329,12 +399,14 @@ public class CardDataLogic {
         try(Connection connection = MySQLConnection.connect()) {
             if(connection != null){
                 connection.setAutoCommit(false);
-                try(PreparedStatement ps = connection.prepareStatement(CardSQLQuery.INSERT_CARD_MASTER_QUERY)){
+                try(PreparedStatement ps = connection.prepareStatement(CardSQLQuery.INSERT_CARD_MASTER_QUERY, Statement.RETURN_GENERATED_KEYS)){
                     ps.setString(1, creditCard.getCardName());
                     ps.setString(2, creditCard.getPaymentGateway());
                     int rs = ps.executeUpdate();
-                    if(rs>0 && ps.getGeneratedKeys().next()){
-                        cardId = ps.getGeneratedKeys().getInt(1);
+                    if(rs>0){
+                        ResultSet rSet = ps.getGeneratedKeys();
+                        rSet.next();
+                        cardId = rSet.getInt(1);
                     }
                 }
                 if(cardId>0){
@@ -365,12 +437,14 @@ public class CardDataLogic {
         try(Connection connection = MySQLConnection.connect()) {
             if(connection != null){
                 connection.setAutoCommit(false);
-                try(PreparedStatement ps = connection.prepareStatement(CardSQLQuery.INSERT_CARD_MASTER_QUERY)){
+                try(PreparedStatement ps = connection.prepareStatement(CardSQLQuery.INSERT_CARD_MASTER_QUERY, Statement.RETURN_GENERATED_KEYS)){
                     ps.setString(1, coBrandCreditCard.getCardName());
                     ps.setString(2, coBrandCreditCard.getPaymentGateway());
                     int rs = ps.executeUpdate();
-                    if(rs>0 && ps.getGeneratedKeys().next()){
-                        cardId = ps.getGeneratedKeys().getInt(1);
+                    if(rs>0){
+                        ResultSet rSet = ps.getGeneratedKeys();
+                        rSet.next();
+                        cardId = rSet.getInt(1);
                     }
                 }
                 if(cardId>0){

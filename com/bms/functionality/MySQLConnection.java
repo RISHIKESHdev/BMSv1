@@ -11,8 +11,10 @@ public class MySQLConnection {
     public static Connection connect() throws SQLException {
 
         try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+
             Properties properties = new Properties();
-            properties.load(new FileInputStream(".\\credentials.properties"));
+            properties.load(new FileInputStream("com/bms/functionality/credentials.properties"));
 
             var jdbcUrl = properties.getProperty("url");
             var user = properties.getProperty("username");
@@ -23,6 +25,8 @@ public class MySQLConnection {
         } catch (SQLException | IOException e) {
             System.out.println(e.getMessage());
             return null;
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
         }
     }
 }

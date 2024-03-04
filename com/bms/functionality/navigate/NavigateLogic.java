@@ -5,19 +5,22 @@ import com.bms.bank.Address;
 import com.bms.bank.GeoLocation;
 import com.bms.functionality.CommonConstant;
 
+import java.io.BufferedReader;
+import java.io.IOException;
 import java.sql.Connection;
 import java.util.Scanner;
 import java.util.regex.Pattern;
 
 public class NavigateLogic implements NavigateInterface{
-    private static final Scanner in = Main.globalIn;
+    private final Scanner in = Main.globalIn;
+    private final BufferedReader reader=Main.globalBuffer;
     public int getIdOnInsertAddressRecord(Connection connection){
         int addressId=0;
 
-        Address address=getAddressInfo();
+        Address address=getAddressInfo(true);
         NavigateDataLogic dataLogic = new NavigateDataLogic();
 
-        if(dataLogic.insertAddressRecord(connection,address)){
+        if(address!=null && dataLogic.insertAddressRecord(connection,address)){
             addressId=address.getAddressId();
             System.out.println("Address Record Inserted.");
         }
@@ -48,38 +51,61 @@ public class NavigateLogic implements NavigateInterface{
 
         return geoLocation;
     }
-    private Address getAddressInfo(){
-        Address address;
+    public Address getAddressInfo(boolean validateInput){
+        Address address = null;
 
-        String addressLineOne,addressLineTwo,addressLineThree,landMark,city,state,country;
-        long pinCode;
+        String addressLineOne,addressLineTwo,addressLineThree,landMark,city,state,country,pinCode;
 
-        System.out.print("Address Line One: ");addressLineOne=in.next();
-        System.out.print("Address Line Two: ");addressLineTwo=in.next();
-        System.out.print("Address Line Three: ");addressLineThree=in.next();
-        System.out.print("Land Mark: ");landMark=in.next();
-        System.out.print("City: ");city=in.next();
-        System.out.print("State: ");state=in.next();
-        System.out.print("Country: ");country=in.next();
-        System.out.print("PinCode: ");pinCode=in.nextLong();
+        try{
+            System.out.print("Address Line One: ");addressLineOne=reader.readLine();
+            System.out.print("Address Line Two: ");addressLineTwo=reader.readLine();
+            System.out.print("Address Line Three: ");addressLineThree=reader.readLine();
+            System.out.print("Land Mark: ");landMark=reader.readLine();
+            System.out.print("City: ");city=reader.readLine();
+            System.out.print("State: ");state=reader.readLine();
+            System.out.print("Country: ");country=reader.readLine();
+            System.out.print("PinCode: ");pinCode=reader.readLine();
 
-        address = new Address(addressLineOne,addressLineTwo,addressLineThree,landMark,city,state,country,pinCode);
+            address = new Address(addressLineOne,addressLineTwo,addressLineThree,landMark,city,state,country,pinCode);
+        }catch(IOException e){
+            System.out.println(e.getMessage());
+        }
 
-        if(!isValidAddress(address))address=null;
+        if(validateInput && address!=null && !isValidAddress(address))address=null;
 
         return address;
     }
+//    private Address getAddressInfo(){
+//        Address address;
+//
+//        String addressLineOne,addressLineTwo,addressLineThree,landMark,city,state,country,pinCode;
+//
+//        System.out.print("Address Line One: ");addressLineOne=in.next();
+//        System.out.print("Address Line Two: ");addressLineTwo=in.next();
+//        System.out.print("Address Line Three: ");addressLineThree=in.next();
+//        System.out.print("Land Mark: ");landMark=in.next();
+//        System.out.print("City: ");city=in.next();
+//        System.out.print("State: ");state=in.next();
+//        System.out.print("Country: ");country=in.next();
+//        System.out.print("PinCode: ");pinCode=in.next();
+//
+//        address = new Address(addressLineOne,addressLineTwo,addressLineThree,landMark,city,state,country,pinCode);
+//
+//        if(!isValidAddress(address))address=null;
+//
+//        return address;
+//    }
     private boolean isValidAddress(Address address){
         boolean isValidAddress=true;
 
-        if(!Pattern.matches(CommonConstant.ADDRESS_LINE_REGEX, address.getAddressLineOne())){
-            System.out.println("Address Line One Must Contain At least Two Words.");
-            isValidAddress=false;
-        }
-        if(!Pattern.matches(CommonConstant.ADDRESS_LINE_REGEX, address.getAddressLineTwo())){
-            System.out.println("Address Line Two Must Contain At least Two Words.");
-            isValidAddress=false;
-        }
+//        if(!Pattern.matches(CommonConstant.ADDRESS_LINE_REGEX, address.getAddressLineOne())){
+//            System.out.println("Address Line One Must Contain At least Two Words.");
+//            isValidAddress=false;
+//        }
+//        if(!Pattern.matches(CommonConstant.ADDRESS_LINE_REGEX, address.getAddressLineTwo())){
+//            System.out.println("Address Line Two Must Contain At least Two Words.");
+//            isValidAddress=false;
+//        }
         if(!Pattern.matches(CommonConstant.AT_LEAST_ONE_STRING_REGEX, address.getLandMark())){
             System.out.println("Land Mark Must Contain At least One Words.");
             isValidAddress=false;
@@ -96,7 +122,7 @@ public class NavigateLogic implements NavigateInterface{
             System.out.println("Country Must Contain At least One Words.");
             isValidAddress=false;
         }
-        if(!Pattern.matches(CommonConstant.INDIAN_PIN_CODE_REGEX, Long.toString(address.getPinCode()))){
+        if(!Pattern.matches(CommonConstant.INDIAN_PIN_CODE_REGEX, address.getPinCode())){
             System.out.println("Country Must Contain At least One Words.");
             isValidAddress=false;
         }

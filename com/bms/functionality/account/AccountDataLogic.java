@@ -12,28 +12,41 @@ import com.bms.functionality.branch.BranchLogic;
 import com.bms.functionality.profile.ProfileLogic;
 import com.bms.people.Customer;
 import com.bms.people.Nominee;
+import com.bms.people.User;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
+import java.util.ArrayList;
 import java.util.Scanner;
 
 public class AccountDataLogic {
-    public static Scanner in;
+    private final Scanner in = Main.globalIn;
+    private ArrayList<Double> customerAccountNumbers;
+    private User loggedInUserInfo;
+    public AccountDataLogic(ArrayList<Double> loggedInCustomerAccountNumbers, User loggedInUserInfo){
+        this.loggedInUserInfo=loggedInUserInfo;
+        this.customerAccountNumbers=loggedInCustomerAccountNumbers;
+    }
+    public AccountDataLogic(){
+
+    }
+    public AccountDataLogic(ArrayList<Double> customerAccountNumbers){
+        this.customerAccountNumbers=customerAccountNumbers;
+    }
 
     private boolean insertAccount(Connection connection, Account account, int branch_Id){
         boolean isAccountInserted=false;
 
-        try(PreparedStatement ps = connection.prepareStatement(AccountSQLQuery.INSERT_ACCOUNT_QUERY)){
+        try(PreparedStatement ps = connection.prepareStatement(AccountSQLQuery.INSERT_ACCOUNT_QUERY, Statement.RETURN_GENERATED_KEYS)){
             ps.setDouble(1, account.getCurrentBalance());
             ps.setDouble(2, account.getAvailableBalance());
             ps.setDouble(3, account.getCreditScore());
             ps.setInt(4, branch_Id);
             int rs = ps.executeUpdate();
-            isAccountInserted=(rs>0);
-            if(isAccountInserted && ps.getGeneratedKeys().next()){
-                account.setAccountNumber(ps.getGeneratedKeys().getDouble(1));
+            if(rs>0){
+                ResultSet rSet = ps.getGeneratedKeys();
+                rSet.next();
+                account.setAccountNumber(rSet.getDouble(1));
+                isAccountInserted=true;
             }
         }catch(NullPointerException | SQLException e){
             System.out.println(e.getMessage());
@@ -42,6 +55,26 @@ public class AccountDataLogic {
         return isAccountInserted;
     }
 
+    boolean getCustomerAccountNumbers(ArrayList<Double> customerAccountNumbers,double CIFNumber){
+        boolean isAccountNumberAvailable=false;
+
+        try(Connection connection = MySQLConnection.connect()){
+            if(connection!=null){
+                try(PreparedStatement ps = connection.prepareStatement(AccountSQLQuery.SELECT_CUSTOMER_ACCOUNTS_QUERY)){
+                    ps.setDouble(1,CIFNumber);
+                    ResultSet rs=ps.executeQuery();
+                    while(rs.next()){
+                        customerAccountNumbers.add(rs.getDouble("account_Number"));
+                        isAccountNumberAvailable=true;
+                    }
+                }
+            }
+        }catch(SQLException e){
+            System.out.println(e.getMessage());
+        }
+
+        return isAccountNumberAvailable;
+    }
     boolean insertCurrentAccount(CurrentAccount currentAccount){
         Nominee nominee=null;
         boolean isCurrentAccountInserted=false;
@@ -72,7 +105,7 @@ public class AccountDataLogic {
                 }
                 if (rs1 > 0) {
                     ProfileLogic profile = new ProfileLogic();
-                    nominee=profile.addNominee(connection,accountNumber);
+                    nominee=profile.addNomineeOnAccountCreation(connection,accountNumber);
                 }
                 if(rs>0 && rs1>0 && nominee !=null){
                     connection.commit();
@@ -106,7 +139,7 @@ public class AccountDataLogic {
                         ps.setDouble(1,accountNumber);
                         ps.setInt(2,FDAccount.getTenure());
                         ps.setDouble(3,FDAccount.getRateOfInterest());
-                        ps.setString(4,Main.dbDateTimeFormat.format(FDAccount.getMatureDateTime()));
+                        ps.setString(4,FDAccount.getMatureDateTime().format(Main.dbDateTimeFormat));
                         rs = ps.executeUpdate();
                     }
                 }
@@ -119,7 +152,7 @@ public class AccountDataLogic {
                 }
                 if (rs1 > 0) {
                     ProfileLogic profile = new ProfileLogic();
-                    nominee=profile.addNominee(connection,accountNumber);
+                    nominee=profile.addNomineeOnAccountCreation(connection,accountNumber);
                 }
                 if(rs>0 && rs1>0 && nominee !=null){
                     connection.commit();
@@ -166,7 +199,8 @@ public class AccountDataLogic {
                 }
                 if (rs1 > 0) {
                     ProfileLogic profile = new ProfileLogic();
-                    nominee=profile.addNominee(connection,accountNumber);
+                    System.out.println("Nominee Details:-");
+                    nominee=profile.addNomineeOnAccountCreation(connection,accountNumber);
                 }
                 if(rs>0 && rs1>0 && nominee !=null){
                     connection.commit();
@@ -189,17 +223,21 @@ public class AccountDataLogic {
 
         ProfileLogic profile = new ProfileLogic();
 
-        System.out.print("Press 1 to Create Add New Customer or 0 to continue: ");isCustomerCreated=(in.nextInt() != 1);
-        if(!isCustomerCreated){
-            customer=profile.registerCustomer(connection);
-            if(customer!=null){
-                CIFNumber=customer.getCIFNumber();
+        if(loggedInUserInfo==null){
+            System.out.print("Press 1 to Create Add New Customer or 0 to continue: ");isCustomerCreated=(in.nextInt() != 1);
+            if(!isCustomerCreated){
+                customer=profile.registerCustomerOnAccountCreation(connection);
+                if(customer!=null){
+                    CIFNumber=customer.getCIFNumber();
+                }
+            }else{
+                System.out.print("Enter CIF Number of the Existing Customer to Map: ");CIFNumber=in.nextDouble();
+                if(!profile.checkCustomerByCIFNumber(connection,CIFNumber)){
+                    System.out.println("Customer Record Not Found For Entered CIF Number.");
+                }
             }
         }else{
-            System.out.print("Enter CIF Number of the Existing Customer to Map: ");CIFNumber=in.nextDouble();
-            if(!profile.checkCustomerByCIFNumber(connection,CIFNumber)){
-                System.out.println("Customer Record Not Found For Entered CIF Number.");
-            }
+            CIFNumber=((Customer)loggedInUserInfo).getCIFNumber();
         }
 
         return CIFNumber;
@@ -224,10 +262,8 @@ public class AccountDataLogic {
     double getAccountNumber(Connection connection){
         double accountNumber;
 
-        AccountDataLogic dataLogic = new AccountDataLogic();
-
         System.out.print("Account Number: ");accountNumber=in.nextDouble();
-        if(!dataLogic.checkAccountNumberPresent(connection,accountNumber)){
+        if(!checkAccountNumberPresent(connection,accountNumber)){
             System.out.println("Entered Account Number Not Found.");
             accountNumber=0;
         }
@@ -239,19 +275,23 @@ public class AccountDataLogic {
         double accountNumber;
         boolean isGoldLoanInserted=false;
 
+        AccountLogic accountLogic = new AccountLogic(customerAccountNumbers);
+
         try(Connection connection = MySQLConnection.connect()){
             if(connection!=null){
                 connection.setAutoCommit(false);
-                accountNumber=getAccountNumber(connection);
+                accountNumber=accountLogic.getAccountNumberOnUserRequest(connection);
                 if(accountNumber>2450000000000000D){
-                    try(PreparedStatement ps = connection.prepareStatement(AccountSQLQuery.INSERT_LOAN_QUERY)){
+                    try(PreparedStatement ps = connection.prepareStatement(AccountSQLQuery.INSERT_LOAN_QUERY, Statement.RETURN_GENERATED_KEYS)){
                         ps.setDouble(1,accountNumber);
                         ps.setDouble(2,goldLoan.getLoanAmount());
                         ps.setDouble(3,goldLoan.getInterestRate());
                         ps.setString(4,goldLoan.getLoanType().toString());
                         rs = ps.executeUpdate();
-                        if(rs>0 && ps.getGeneratedKeys().next()){
-                            loanId=ps.getGeneratedKeys().getInt(1);
+                        if(rs>0){
+                            ResultSet rSet = ps.getGeneratedKeys();
+                            rSet.next();
+                            loanId=rSet.getInt(1);
                             goldLoan.setLoanId(loanId);
                         }
                     }
@@ -285,19 +325,23 @@ public class AccountDataLogic {
         double accountNumber;
         boolean isHomeLoanInserted=false;
 
+        AccountLogic accountLogic = new AccountLogic(customerAccountNumbers);
+
         try(Connection connection = MySQLConnection.connect()){
             if(connection!=null){
                 connection.setAutoCommit(false);
-                accountNumber=getAccountNumber(connection);
+                accountNumber=accountLogic.getAccountNumberOnUserRequest(connection);
                 if(accountNumber>2450000000000000D){
-                    try(PreparedStatement ps = connection.prepareStatement(AccountSQLQuery.INSERT_LOAN_QUERY)){
+                    try(PreparedStatement ps = connection.prepareStatement(AccountSQLQuery.INSERT_LOAN_QUERY, Statement.RETURN_GENERATED_KEYS)){
                         ps.setDouble(1,accountNumber);
                         ps.setDouble(2,homeLoan.getLoanAmount());
                         ps.setDouble(3,homeLoan.getInterestRate());
                         ps.setString(4,homeLoan.getLoanType().toString());
                         rs = ps.executeUpdate();
-                        if(rs>0 && ps.getGeneratedKeys().next()){
-                            loanId=ps.getGeneratedKeys().getInt(1);
+                        if(rs>0){
+                            ResultSet rSet=ps.getGeneratedKeys();
+                            rSet.next();
+                            loanId=rSet.getInt(1);
                             homeLoan.setLoanId(loanId);
                         }
                     }

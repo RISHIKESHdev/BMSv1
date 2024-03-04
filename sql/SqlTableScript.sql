@@ -32,8 +32,24 @@
 # Drop Table Cheque
 # Drop Table Cash
 
-
-
+select * from Account;
+UPDATE Account SET available_Balance=3454,current_Balance=3453456 WHERE account_Number=34646586776534;
+select card_number from card where card_number=1000000000000000;
+select * from Saving_Account;
+select * from Customer_Account_Map;
+select * from employee;
+select * from Address;
+select * from Customer;# SELECT * FROM Account WHERE account_Number=2450000000000001;
+select * from branch;
+select * from Employee_Branch_Map;
+DELETE FROM Employee_Branch_Map WHERE employee_Id=10000000001;
+INSERT INTO Employee_Branch_Map(branch_Id,employee_Id) VALUE(1,10000000001);
+UPDATE Employee_Branch_Map SET branch_Id=1 WHERE employee_Id=10000000001;
+SELECT branch_Id,IFSC_Code,branch_Name FROM Branch WHERE branch_Id = 1;
+INSERT INTO branch values('2', '3', '245', '14', 'SBII000002', 'KRISP', '8767877687');
+select * from DEBIT_CARD;
+select COUNT(*) FROM Account JOIN Customer_Account_Map ON Account.account_Number=Customer_Account_Map.account_Number WHERE Customer_Account_Map.CIFNumber=? AND Account.branch_Id=?;
+UPDATE Account SET branch_Id=? WHERE Account.account_Number=?;
 
 #Address
 Create Table Address(
@@ -46,6 +62,7 @@ city VARCHAR(100),
 state VARCHAR(100),
 country VARCHAR(100),
 pinCode VARCHAR(100));
+
 
 #Geo Location
 Create Table Geo_Location(
@@ -91,6 +108,18 @@ mobile_Number VARCHAR(20),
 FOREIGN KEY (address_Id) REFERENCES Address(Address_Id)
 );
 
+INSERT INTO User(address_Id,first_Name,middle_Name,last_Name,email_Id,gender,password,age,mobile_Number) VALUE(10,'Admin One','mn','ln','rootadmin@gmail.com','Male','admin','23','9867545654');
+INSERT INTO Admin(user_Id,is_Active) VALUE(11,TRUE);
+commit;
+
+SELECT first_Name,middle_Name,last_Name,email_Id,gender,password,age,mobile_Number,address_Line_One,address_Line_Two,address_Line_Three,landmark,city,state,country,pinCode,is_Active FROM Address JOIN User JOIN Admin ON User.address_Id=Address.Address_Id AND User.Id=Admin.user_Id WHERE Admin.is_Active=True and User.email_Id='rootadmin@gmail.comBranchBank' AND User.password='admin';
+select * from admin;
+select * from user;
+select * from Address JOIN User JOIN Admin ON User.address_Id=Address.Address_Id AND admin.user_Id=user.id WHERE Admin.is_Active=True and User.email_Id='rootadmin@gmail.com' AND User.password='admin';
+# SELECT first_Name,middle_Name,last_Name,email_Id,gender,password,age,mobile_Number,address_Line_One,address_Line_Two,address_Line_Three,landmark,city,state,country,pinCode,is_Active FROM Address JOIN User JOIN Admin ON User.address_Id=Address.Address_Id AND User.Id=Admin.user_Id WHERE Admin.is_Active=True and User.email_Id='rootadmin@gmail.com' AND User.password='root';
+# UPDATE Employee SET is_Active=False WHERE Employee.Employee_Id=?;
+# UPDATE User JOIN Employee ON Employee.user_Id=User.Id SET first_Name="fn" WHERE Employee.Employee_Id=3645645
+
 #Admin
 Create Table Admin(
 Id Integer AUTO_INCREMENT PRIMARY KEY,
@@ -125,7 +154,7 @@ FOREIGN KEY (user_Id) REFERENCES User(id) ON DELETE CASCADE
 
 #Employee Branch Map
 Create TABLE Employee_Branch_Map(
-employee_Id Double,
+employee_Id Double UNIQUE,
 branch_Id Integer,
 FOREIGN KEY (employee_Id) REFERENCES Employee(Employee_Id) ON DELETE CASCADE,
 FOREIGN KEY (branch_Id) REFERENCES Branch(branch_Id) ON DELETE CASCADE
@@ -141,6 +170,7 @@ account_Inception_DateTime DateTime,
 branch_Id Integer,
 FOREIGN KEY (branch_Id) REFERENCES Branch(branch_Id) ON Delete Cascade
 )Auto_Increment=2450000000000000;
+
 
 #Nominee
 Create Table Nominee(
@@ -260,7 +290,7 @@ FOREIGN KEY (card_Id) REFERENCES Card_MASTER(id) ON DELETE CASCADE
 #DEBIT CARD MASTER
 CREATE TABLE DEBIT_CARD_MASTER(
 card_Id Integer,
-withdrawal_Limit DOUBLE(12,8),
+withdrawal_Limit DOUBLE(12,4),
 UNIQUE KEY (card_Id),
 FOREIGN KEY (card_Id) REFERENCES Card_MASTER(id) ON DELETE CASCADE
 );
@@ -276,6 +306,7 @@ expiry_Date Date,
 payment_Gateway VARCHAR(50),
 CVV INTEGER,
 pin_Number INTEGER,
+is_Active Bool,
 FOREIGN KEY (account_Number) REFERENCES Account(account_Number) ON DELETE CASCADE
 )Auto_Increment=1000000000000000;
 
@@ -293,7 +324,7 @@ FOREIGN KEY (card_Id) REFERENCES Card(card_Number) ON DELETE CASCADE
 CREATE TABLE DEBIT_CARD(
 Id Integer AUTO_INCREMENT PRIMARY KEY,
 card_Id Double,
-withdrawal_Limit DOUBLE(12,8),
+withdrawal_Limit DOUBLE(12,4),
 UNIQUE KEY (card_Id),
 FOREIGN KEY (card_Id) REFERENCES Card(card_Number) ON DELETE CASCADE
 );

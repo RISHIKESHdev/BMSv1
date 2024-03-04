@@ -6,26 +6,34 @@ import com.bms.transaction.*;
 import com.bms.transaction.cash.Cash;
 import com.bms.transaction.cash.Currency;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
+import java.sql.*;
+import java.util.ArrayList;
 
 public class TransactionDataLogic {
+    private ArrayList<Double> customerAccountNumbers;
+    public TransactionDataLogic(){
+
+    }
+    public TransactionDataLogic(ArrayList<Double> customerAccountNumbers){
+        this.customerAccountNumbers=customerAccountNumbers;
+    }
     private boolean insertTransactionRecord(Connection connection,Transaction transaction){
         boolean isRecordInserted=false;
         double accountNumber;
         int transactionId;
 
-        AccountLogic accountLogic = new AccountLogic();
+        AccountLogic accountLogic = new AccountLogic(customerAccountNumbers);
         accountNumber=accountLogic.getAccountNumberOnUserRequest(connection);
 
-        if(accountNumber>0){
-            try(PreparedStatement ps = connection.prepareStatement(TransactionSQLQuery.INSERT_TRANSACTION_QUERY)){
+        if(accountNumber>0 && updateAmount(connection,transaction,accountNumber)){
+            try(PreparedStatement ps = connection.prepareStatement(TransactionSQLQuery.INSERT_TRANSACTION_QUERY, Statement.RETURN_GENERATED_KEYS)){
                 ps.setDouble(1,accountNumber);
                 ps.setDouble(2,transaction.getTransactionAmount());
                 int rs = ps.executeUpdate();
-                if(rs>0 && ps.getGeneratedKeys().next()){
-                    transactionId=ps.getGeneratedKeys().getInt(1);
+                if(rs>0){
+                    ResultSet rSet = ps.getGeneratedKeys();
+                    rSet.next();
+                    transactionId=rSet.getInt(1);
                     transaction.setTransactionId(transactionId);
                     isRecordInserted=true;
                 }
@@ -35,6 +43,53 @@ public class TransactionDataLogic {
         }
 
         return isRecordInserted;
+    }
+    boolean updateAmount(Connection connection,Transaction transaction,double accountNumber){
+        boolean isAmountUpdated=false,isValid=false;
+
+        try(CallableStatement cs = connection.prepareCall(TransactionSQLQuery.CHECK_VALID_ACCOUNT)){
+            cs.registerOutParameter(4, Types.BOOLEAN);
+
+            cs.setDouble(1,accountNumber);
+            if(transaction instanceof WithdrawTransaction){
+                cs.setString(2,"WITHDRAW");
+            }else if(transaction instanceof DepositTransaction){
+                cs.setString(2,"DEPOSIT");
+            }else{
+                cs.setString(2,"TRANSFER");
+            }
+            cs.setDouble(3,transaction.getTransactionAmount());
+            cs.execute();
+
+            isValid=cs.getBoolean("valid_Account");
+        }catch(SQLException e){
+            System.out.println(e.getMessage());
+        }
+        if(isValid){
+            try(CallableStatement cs = connection.prepareCall(TransactionSQLQuery.UPDATE_AMOUNT_TRANSACTION_QUERY)){
+                cs.registerOutParameter(5, Types.BOOLEAN);
+
+                cs.setDouble(1,accountNumber);
+                if(transaction instanceof WithdrawTransaction){
+                    cs.setDouble(2,0);
+                    cs.setString(3,"WITHDRAW");
+                }else if(transaction instanceof DepositTransaction){
+                    cs.setDouble(2,0);
+                    cs.setString(3,"DEPOSIT");
+                }else{
+                    cs.setDouble(2,((TransferTransaction)transaction).getBeneficiaryAccountNumber());
+                    cs.setString(3,"TRANSFER");
+                }
+                cs.setDouble(4,transaction.getTransactionAmount());
+                cs.execute();
+
+                isAmountUpdated=cs.getBoolean("isTransactionCompleted");
+            }catch(SQLException e){
+                System.out.println(e.getMessage());
+            }
+        }
+
+        return isAmountUpdated;
     }
     boolean insertWithdrawalRecord(WithdrawTransaction withdrawTransaction){
         boolean isRecordInserted=false;

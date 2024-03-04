@@ -1,23 +1,33 @@
 package com.bms.functionality.card;
 
 import com.bms.Main;
+import com.bms.functionality.account.AccountLogic;
 import com.bms.transaction.card.Card;
 import com.bms.transaction.card.CoBrandedCreditCard;
 import com.bms.transaction.card.CreditCard;
 import com.bms.transaction.card.DebitCard;
 
+import java.sql.Connection;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Scanner;
 
 public class CardLogics implements CardInterface{
-    private static final Scanner in = Main.globalIn;
+    private final Scanner in = Main.globalIn;
+    private ArrayList<Double> customerAccountNumbers;
+    public CardLogics(){
+
+    }
+    public CardLogics(ArrayList<Double> customerAccountNumbers){
+        this.customerAccountNumbers=customerAccountNumbers;
+    }
 
     public boolean registerCard(){
         Card card;
         int cardCode;
         boolean isCardSaved=false;
 
-        CardDataLogic dataLogic = new CardDataLogic();
+        CardDataLogic dataLogic = new CardDataLogic(customerAccountNumbers);
         cardCode=getCardCode();
         displayCardMasterInfo(cardCode);
         card=getCardInfo(cardCode);
@@ -30,28 +40,60 @@ public class CardLogics implements CardInterface{
 
         return isCardSaved;
     }
+
+    public double getCardNumber(Connection connection,double accountNumber){
+        double cardNumber;
+
+        CardDataLogic dataLogic = new CardDataLogic();
+
+        if(accountNumber!=0 && dataLogic.displayActiveCard(connection,accountNumber)){
+            System.out.println("Card Number: ");cardNumber=in.nextDouble();
+        }else{
+            cardNumber=0;
+            System.out.println("Card Not Found For The Entered Account number.");
+        }
+
+        return cardNumber;
+    }
+    public boolean deactivateCard(){
+        boolean isDeactivated=false;
+
+        CardDataLogic dataLogic = new CardDataLogic(customerAccountNumbers);
+
+        if(dataLogic.deactivateCardRecord()){
+            System.out.println("New Card Added Successfully.");
+        }else{
+            System.out.println("New Card Insertion Failed.");
+        }
+
+        return isDeactivated;
+    }
     private Card getCardInfo(int cardCode){
         Card card = null;
+        int cardId=0;
         String cardHolderName;
 
         CardDataLogic dataLogic = new CardDataLogic();
 
+        System.out.print("Select A Card Id: ");cardId=in.nextInt();
+
         switch(cardCode){
             case 1:{
-                card=dataLogic.getDebitCardMasterById();
+                card=dataLogic.getDebitCardMasterById(cardId);
                 break;
             }
             case 2:{
-                card=dataLogic.getCreditCardMasterById();
+                card=dataLogic.getCreditCardMasterById(cardId);
                 break;
             }
             case 3:{
-                card=dataLogic.getCoBrandCreditCardMasterById();
+                card=dataLogic.getCoBrandCreditCardMasterById(cardId);
                 break;
             }
         }
         if(card !=null){
             System.out.print("Enter Card Holder Name: ");cardHolderName=in.next();
+            card.setCardHolderName(cardHolderName);
         }
         return card;
     }
@@ -105,9 +147,9 @@ public class CardLogics implements CardInterface{
         debitCard=(DebitCard) getNewCardInfo(1);
 
         if(debitCard!=null && dataLogic.insertNewDebitCard(debitCard)){
-            System.out.println("Debit Card Saved Successfully.");
+            System.out.println("Debit Card Master Saved Successfully.");
         }else{
-            System.out.println("Debit Card Save Failed.");
+            System.out.println("Debit Card Master Save Failed.");
         }
 
         return debitCard;
@@ -119,9 +161,9 @@ public class CardLogics implements CardInterface{
         creditCard=(CreditCard) getNewCardInfo(2);
 
         if(creditCard!=null && dataLogic.insertNewCreditCard(creditCard)){
-            System.out.println("Credit Card Saved Successfully.");
+            System.out.println("Credit Card Master Saved Successfully.");
         }else{
-            System.out.println("Credit Card Save Failed.");
+            System.out.println("Credit Card Master Save Failed.");
         }
 
         return creditCard;
@@ -133,9 +175,9 @@ public class CardLogics implements CardInterface{
         coBrandedCreditCard=(CoBrandedCreditCard) getNewCardInfo(1);
 
         if(coBrandedCreditCard!=null && dataLogic.insertNewCoBrandedCreditCard(coBrandedCreditCard)){
-            System.out.println("Co Branded Credit Card Saved Successfully.");
+            System.out.println("Co Branded Credit Card Master Saved Successfully.");
         }else{
-            System.out.println("Co Branded Credit Card Save Failed.");
+            System.out.println("Co Branded Credit Card Master Save Failed.");
         }
 
         return coBrandedCreditCard;
@@ -150,7 +192,7 @@ public class CardLogics implements CardInterface{
         boolean isActive;
 
         System.out.print("Card Name: ");cardName=in.next();
-        System.out.print("Card Inception Date: ");inceptionDate= Main.currentDateTime;
+        inceptionDate= Main.currentDateTime;
         System.out.print("Is card Active: ");isActive=in.nextBoolean();
         System.out.print("Card Payment Gateway: ");paymentGateway=in.next();
 

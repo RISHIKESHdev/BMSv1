@@ -1,8 +1,8 @@
 package com.bms.functionality;
 
 public class CommonConstant {
-    public static final String ADDRESS_LINE_REGEX = "^[a-zA-Z0-9]+(?:\\s[a-zA-Z0-9]+)+$";
-    public static final String AT_LEAST_ONE_STRING_REGEX = "^[a-zA-Z0-9]+$";
+    //public static final String ADDRESS_LINE_REGEX = "^[a-zA-Z0-9]+(?:\\s[a-zA-Z0-9]+)+$";
+    public static final String AT_LEAST_ONE_STRING_REGEX = "^[\\sa-zA-Z0-9]+$";
     public static final String INDIAN_PIN_CODE_REGEX = "^[1-9]{1}[0-9]{2}\\s{0,1}[0-9]{3}$";
     public static final String EMAIL_ID_REGEX = "^[a-zA-Z0-9+_.-]+@[a-zA-Z0-9.-]+$";
     public static final String GENDER_REGEX ="(?:male|Male|female|Female|FEMALE|MALE)$";

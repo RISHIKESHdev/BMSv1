@@ -1,5 +1,6 @@
 package com.bms.functionality.account;
 
+import com.bms.Application;
 import com.bms.Main;
 import com.bms.accounts.Account;
 import com.bms.accounts.CurrentAccount;
@@ -9,18 +10,45 @@ import com.bms.accounts.loan.Gold;
 import com.bms.accounts.loan.Home;
 import com.bms.accounts.loan.Loan;
 import com.bms.functionality.CommonConstant;
+import com.bms.people.Customer;
+import com.bms.people.User;
 
 import java.sql.Connection;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Optional;
 import java.util.Scanner;
 
 public class AccountLogic implements AccountInterface{
-    private static final Scanner in = Main.globalIn;
+    private final Scanner in = Main.globalIn;
+    private ArrayList<Double> customerAccountNumbers;
+    private User loggedInUserInfo;
+    public AccountLogic(ArrayList<Double> customerAccountNumbers){
+        this.customerAccountNumbers=customerAccountNumbers;
+    }
+    public AccountLogic(ArrayList<Double> loggedInCustomerAccountNumbers, User loggedInUserInfo){
+        this.loggedInUserInfo=loggedInUserInfo;
+        this.customerAccountNumbers=loggedInCustomerAccountNumbers;
+    }
+    public AccountLogic(){
 
+    }
+
+    public int getAccountCode(){
+        int cardCode;
+
+        System.out.println("1. FD Account.");
+        System.out.println("2. Current Account.");
+        System.out.println("3. Saving Account.");
+
+        System.out.print("Enter Account Code: ");cardCode=in.nextInt();
+
+        return cardCode;
+    }
     public FixedDepositAccount registerFDAccount(){
         FixedDepositAccount FDAccount;
 
-        AccountDataLogic dataLogic = new AccountDataLogic();
+        AccountDataLogic dataLogic = new AccountDataLogic(customerAccountNumbers,loggedInUserInfo);
         FDAccount = (FixedDepositAccount) getAccountInfo(2);
 
         if(FDAccount!=null && dataLogic.insertFixedDepositAccount(FDAccount)) {
@@ -35,7 +63,7 @@ public class AccountLogic implements AccountInterface{
     public CurrentAccount registerCurrentAccount(){
         CurrentAccount currentAccount;
 
-        AccountDataLogic dataLogic = new AccountDataLogic();
+        AccountDataLogic dataLogic = new AccountDataLogic(customerAccountNumbers,loggedInUserInfo);
         currentAccount = (CurrentAccount) getAccountInfo(1);
 
         if(currentAccount!=null && dataLogic.insertCurrentAccount(currentAccount)) {
@@ -50,7 +78,7 @@ public class AccountLogic implements AccountInterface{
     public SavingAccount registerSavingAccount(){
         SavingAccount savingAccount;
 
-        AccountDataLogic dataLogic = new AccountDataLogic();
+        AccountDataLogic dataLogic = new AccountDataLogic(customerAccountNumbers,loggedInUserInfo);
         savingAccount = (SavingAccount) getAccountInfo(3);
 
         if(savingAccount!=null && dataLogic.insertSavingAccount(savingAccount)) {
@@ -62,13 +90,45 @@ public class AccountLogic implements AccountInterface{
 
         return savingAccount;
     }
-
-    public double getAccountNumberOnUserRequest(Connection connection){
-        double accountNumber;
+    public ArrayList<Double> getCustomerAccountNumberOnLogin(double CIFNumber){
+        ArrayList<Double> customerAccountNumbers = new ArrayList<>();
 
         AccountDataLogic dataLogic = new AccountDataLogic();
 
-        accountNumber=dataLogic.getAccountNumber(connection);
+        if(dataLogic.getCustomerAccountNumbers(customerAccountNumbers,CIFNumber)){
+            System.out.println("Logged In Customer Account Numbers: ");
+            for(double accountNumber: customerAccountNumbers){
+                System.out.println(accountNumber);
+            }
+        }else{
+            System.out.println("No Account Found For the Customer.");
+            customerAccountNumbers=null;
+        }
+
+        return customerAccountNumbers;
+    }
+    public double getAccountNumberOnUserRequest(Connection connection){
+        double accountNumber = 0;
+
+        AccountDataLogic dataLogic = new AccountDataLogic();
+
+        accountNumber=getCustomerAccountNumber();
+        if(!(accountNumber!=0)){
+            accountNumber=dataLogic.getAccountNumber(connection);
+        }
+
+        return accountNumber;
+    }
+    public double getCustomerAccountNumber(){
+        double accountNumber = 0;
+
+        if(!customerAccountNumbers.isEmpty()){
+            for(Double customerAccountNumber: customerAccountNumbers){
+                System.out.println("Logged In Customer Account Number:-");
+                System.out.println(customerAccountNumber);
+                System.out.print("Select From Above Account Number: ");accountNumber=in.nextDouble();
+            }
+        }
 
         return accountNumber;
     }
@@ -79,7 +139,7 @@ public class AccountLogic implements AccountInterface{
         double currentBalance,availableBalance,creditScore;
         LocalDateTime accountInceptionDateTime;
 
-        System.out.print("Initial Current Balance");currentBalance=in.nextDouble();
+        System.out.print("Initial Current Balance: ");currentBalance=in.nextDouble();
         availableBalance=currentBalance;
         creditScore= CommonConstant.INITIAL_CREDIT_SCORE;
         accountInceptionDateTime= Main.currentDateTime;
@@ -111,8 +171,8 @@ public class AccountLogic implements AccountInterface{
                 double minimumAccountBalance,withdrawalLimit,rateOfInterest;
 
                 minimumAccountBalance=CommonConstant.MIN_SAVING_ACCOUNT_BALANCE;
-                System.out.print("Saving Account Withdrawal Limit");withdrawalLimit=in.nextDouble();
-                System.out.print("Saving Account Rate Of Interest");rateOfInterest=in.nextDouble();
+                System.out.print("Saving Account Withdrawal Limit: ");withdrawalLimit=in.nextDouble();
+                System.out.print("Saving Account Rate Of Interest: ");rateOfInterest=in.nextDouble();
 
                 account=new SavingAccount(currentBalance,availableBalance,creditScore,accountInceptionDateTime,minimumAccountBalance,withdrawalLimit,rateOfInterest);
 
@@ -180,7 +240,7 @@ public class AccountLogic implements AccountInterface{
     public Loan registerGoldLoan(){
         Loan goldLoan;
 
-        AccountDataLogic dataLogic = new AccountDataLogic();
+        AccountDataLogic dataLogic = new AccountDataLogic(customerAccountNumbers);
         goldLoan = getLoanInfo(1);
 
         if(goldLoan!=null && dataLogic.insertGoldLoan((Gold)goldLoan)) {

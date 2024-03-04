@@ -3,12 +3,21 @@ package com.bms.functionality.branch;
 import com.bms.Main;
 import com.bms.bank.Branch;
 import com.bms.functionality.CommonConstant;
+import com.bms.functionality.account.AccountLogic;
 
 import java.sql.Connection;
+import java.util.ArrayList;
 import java.util.Scanner;
 
 public class BranchLogic implements BranchInterface{
-    private static final Scanner in = Main.globalIn;
+    private final Scanner in = Main.globalIn;
+    private ArrayList<Double> customerAccountNumbers;
+    public BranchLogic(ArrayList<Double> customerAccountNumbers){
+        this.customerAccountNumbers=customerAccountNumbers;
+    }
+    public BranchLogic(){
+
+    }
     public int getBranchId(Connection connection){
         int branchId=0;
 
@@ -24,6 +33,35 @@ public class BranchLogic implements BranchInterface{
             System.out.println("No Branch Record Available.");
         }
         return branchId;
+    }
+
+    public boolean changeEmployeeBranch(){
+        boolean isEmployeeBranchChanged=false;
+        double employeeId;
+
+        BranchDataLogic dataLogic = new BranchDataLogic();
+
+        System.out.print("Employee Id: ");employeeId=in.nextDouble();
+        if(dataLogic.updateEmployeeBranchMap(employeeId)){
+            System.out.println("Employee Branch Updated Successfully.");
+        }else{
+            System.out.println("Employee Branch Update Failed.");
+        }
+
+        return isEmployeeBranchChanged;
+    }
+    public boolean changeCustomerBranch(){
+        boolean isCustomerBranchChanged=false;
+
+        BranchDataLogic dataLogic = new BranchDataLogic();
+
+        if(dataLogic.updateCustomerBranchMap()){
+            System.out.println("Customer Account Branch Updated Successfully.");
+        }else{
+            System.out.println("Customer Account Branch Update Failed.");
+        }
+
+        return isCustomerBranchChanged;
     }
 
     public boolean registerBranch(){

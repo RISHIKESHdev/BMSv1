@@ -5,5 +5,6 @@ public interface AdminInterface extends UserInterface{
     public void addEmployee();
     public void deleteEmployee();
     public void updateEmployee();
+    public void addBranch();
     public void changeEmployeeBranch();
 }

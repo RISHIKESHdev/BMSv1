@@ -9,9 +9,9 @@ public class Address {
     private String city;
     private String state;
     private String country;
-    private long pinCode;
+    private String pinCode;
 
-    public Address(String addressLineOne, String addressLineTwo, String addressLineThree, String landMark, String city,String state,String country, long pinCode) {
+    public Address(String addressLineOne, String addressLineTwo, String addressLineThree, String landMark, String city,String state,String country, String pinCode) {
         this.addressLineOne = addressLineOne;
         this.addressLineTwo = addressLineTwo;
         this.addressLineThree = addressLineThree;
@@ -78,11 +78,11 @@ public class Address {
         this.country = country;
     }
 
-    public long getPinCode() {
+    public String getPinCode() {
         return pinCode;
     }
 
-    public void setPinCode(long pinCode) {
+    public void setPinCode(String pinCode) {
         this.pinCode = pinCode;
     }
 

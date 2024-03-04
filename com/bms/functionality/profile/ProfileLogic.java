@@ -1,18 +1,98 @@
 package com.bms.functionality.profile;
 
 import com.bms.Main;
+import com.bms.bank.Address;
 import com.bms.functionality.CommonConstant;
+import com.bms.functionality.navigate.NavigateLogic;
 import com.bms.people.*;
 
+import java.io.BufferedReader;
+import java.io.IOException;
 import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Objects;
 import java.util.Scanner;
 import java.util.regex.Pattern;
 
 public class ProfileLogic implements ProfileInterface{
-    private static final Scanner in = Main.globalIn;
+    private final Scanner in = Main.globalIn;
+    private final BufferedReader reader=Main.globalBuffer;
+    private ArrayList<Double> customerAccountNumbers;
+    private User loggedInCustomer;
+    public ProfileLogic(){
 
-    public Nominee addNominee(Connection connection,double accountNumber){
+    }
+    public ProfileLogic(ArrayList<Double> customerAccountNumbers){
+        this.customerAccountNumbers=customerAccountNumbers;
+    }
+    public ProfileLogic(ArrayList<Double> customerAccountNumbers,User loggedInCustomer){
+        this.customerAccountNumbers=customerAccountNumbers;
+        this.loggedInCustomer=loggedInCustomer;
+    }
+
+    public Admin getAdminOnLogin(){
+        Admin admin;
+        UserCredential userCredential;
+
+        ProfileDataLogic dataLogic = new ProfileDataLogic();
+
+        userCredential=getUserCredential();
+        admin=dataLogic.checkCredentialAndGetAdmin(userCredential);
+        if(admin!=null){
+            System.out.println("Admin Logged In Successful.");
+        }else{
+            System.out.println("Admin Login Failed.");
+        }
+
+        return admin;
+    }
+    public Employee getEmployeeOnLogin(){
+        Employee employee;
+        UserCredential userCredential;
+
+        ProfileDataLogic dataLogic = new ProfileDataLogic();
+
+        userCredential=getUserCredential();
+        employee=dataLogic.checkCredentialAndGetEmployee(userCredential);
+        if(employee!=null){
+            System.out.println("Employee Logged In Successful.");
+        }else{
+            System.out.println("Employee Login Failed.");
+        }
+
+        return employee;
+    }
+    public Customer getCustomerOnLogin(){
+        Customer customer;
+        UserCredential userCredential;
+
+        ProfileDataLogic dataLogic = new ProfileDataLogic();
+
+        userCredential=getUserCredential();
+        customer=dataLogic.checkCredentialAndGetCustomer(userCredential);
+        if(customer!=null){
+            System.out.println("Customer Logged In Successful.");
+        }else{
+            System.out.println("Customer Login Failed.");
+        }
+
+        return customer;
+    }
+    public int displayAndGetNomineeId(Connection connection,double accountNumber){
+        int NomineeId;
+
+        ProfileDataLogic dataLogic = new ProfileDataLogic();
+
+        if(dataLogic.selectNomineeDetail(connection,accountNumber)){
+            System.out.print("Enter Nominee Id: ");NomineeId=in.nextInt();
+        }else{
+            NomineeId=0;
+        }
+
+        return NomineeId;
+    }
+    public Nominee addNomineeOnAccountCreation(Connection connection, double accountNumber){
         Nominee nominee;
 
         ProfileDataLogic dataLogic = new ProfileDataLogic();
@@ -26,11 +106,38 @@ public class ProfileLogic implements ProfileInterface{
 
         return nominee;
     }
+    public Nominee addNominee(){
+        Nominee nominee;
+
+        ProfileDataLogic dataLogic = new ProfileDataLogic(customerAccountNumbers);
+        nominee = getNomineeInput();
+
+        if(nominee!=null && dataLogic.insertNewNominee(nominee)) {
+            System.out.println("Nominee Record Inserted.");
+        }else{
+            System.out.println("Nominee Record Insertion Failed.");
+        }
+
+        return nominee;
+    }
+    public boolean removeNominee(){
+        boolean isNomineeRemoved=false;
+
+        ProfileDataLogic dataLogic = new ProfileDataLogic(customerAccountNumbers);
+
+        if(dataLogic.deleteNominee()){
+            System.out.println("Nominee Record Deleted.");
+        }else{
+            System.out.println("Nominee Record Deleteion Failed.");
+        }
+
+        return isNomineeRemoved;
+    }
     public Admin registerAdmin(){
         Admin admin;
 
         ProfileDataLogic dataLogic = new ProfileDataLogic();
-        admin = (Admin) getProfileInput(2);
+        admin = (Admin) getProfileInput(2,true);
 
         if(admin!=null && dataLogic.insertAdmin(admin)) {
             System.out.println("Admin Record Inserted.");
@@ -44,7 +151,7 @@ public class ProfileLogic implements ProfileInterface{
         Employee employee;
 
         ProfileDataLogic dataLogic = new ProfileDataLogic();
-        employee = (Employee) getProfileInput(3);
+        employee = (Employee) getProfileInput(3,true);
 
         if(employee!=null && dataLogic.insertEmployee(employee)) {
             System.out.println("Employee Id: "+ employee.getEmployeeId());
@@ -55,13 +162,29 @@ public class ProfileLogic implements ProfileInterface{
 
         return employee;
     }
-    public Customer registerCustomer(Connection connection){
+    public Customer registerCustomer(){
         Customer customer;
 
         ProfileDataLogic dataLogic = new ProfileDataLogic();
-        customer = (Customer)getProfileInput(1);
+        customer = (Customer)getProfileInput(1,true);
 
-        if(customer!=null && dataLogic.insertCustomer(connection,customer)) {
+        if(customer!=null && dataLogic.insertCustomer(customer)) {
+            System.out.printf("CIF Number: %.0f\n", customer.getCIFNumber());
+            System.out.println("Customer Record Inserted.");
+        }else{
+            customer=null;
+            System.out.println("Customer Record Insertion Failed.");
+        }
+
+        return customer;
+    }
+    public Customer registerCustomerOnAccountCreation(Connection connection){
+        Customer customer;
+
+        ProfileDataLogic dataLogic = new ProfileDataLogic();
+        customer = (Customer)getProfileInput(1,true);
+
+        if(customer!=null && dataLogic.insertCustomerOnAccountCreation(connection,customer)) {
             System.out.println("CIF Number: "+ customer.getCIFNumber());
             System.out.println("Customer Record Inserted.");
         }else{
@@ -80,61 +203,166 @@ public class ProfileLogic implements ProfileInterface{
 
         return customer;
     }
+    public double checkAndGetCIFNumber(Connection connection){
+        double CIFNumber;
+
+        ProfileDataLogic dataLogic = new ProfileDataLogic();
+
+        System.out.print("CIF Number: ");CIFNumber=in.nextDouble();
+        if(!dataLogic.checkCIFNumber(connection,CIFNumber)){
+            CIFNumber=0;
+        }
+        return CIFNumber;
+    }
     public boolean checkCustomerByCIFNumber(Connection connection,double CIFNumber){
         ProfileDataLogic dataLogic = new ProfileDataLogic();
         return dataLogic.isCustomerPresent(connection,CIFNumber);
     }
-    private User getProfileInput(int profileCode){
-        User user=null;
+    public void deActivateEmployee() {
+        double employeeId;
 
-        String firstName,middleName,lastName,emailId,gender,password,mobileNumber;
-        int age;
+        ProfileDataLogic dataLogic = new ProfileDataLogic();
+        employeeId=getEmployeeId();
 
-        System.out.print("First Name: ");firstName=in.next();
-        System.out.print("Middle Name: ");middleName=in.next();
-        System.out.print("Last Name: ");lastName=in.next();
+        try{
+            if(dataLogic.updateEmployeeDeactivate(employeeId)){
+                System.out.println("Employee Deactivated Successfully.");
+            }else{
+                System.out.println("Employee Deactivation Failed.");
+            }
+        }catch (SQLException e){
+            System.out.println(e.getMessage());
+        }
+    }
+    public Customer customerProfileUpdate(){
+        Customer customer;
+        Address address;
+        boolean updateAddress;
+
+        ProfileDataLogic dataLogic = new ProfileDataLogic(customerAccountNumbers,loggedInCustomer);
+        NavigateLogic navigate = new NavigateLogic();
+
+        customer=(Customer) getProfileInput(1,false);
+        System.out.print("Press 1 to Update Customer Address Details or 0: ");updateAddress=in.nextInt()==1;
+        if(updateAddress){
+            address=navigate.getAddressInfo(false);
+            customer.setAddress(address);
+        }
+        if(dataLogic.updateCustomerProfile(customer)){
+            System.out.println("Customer Profile Updated Successfully.");
+        }else{
+            System.out.println("Customer Profile Update Failed.");
+        }
+
+        return customer;
+    }
+    public Employee employeeProfileUpdate(){
+        Employee employee;
+        Address address;
+        double employeeId;
+        boolean updateAddress;
+
+        ProfileDataLogic dataLogic = new ProfileDataLogic();
+        NavigateLogic navigate = new NavigateLogic();
+        employeeId=getEmployeeId();
+
+        employee=(Employee) getProfileInput(3,false);
+        System.out.print("Press 1 to Update Employee Address Details or 0: ");updateAddress=in.nextInt()==1;
+        if(updateAddress){
+            address=navigate.getAddressInfo(false);
+            employee.setAddress(address);
+        }
+        if(dataLogic.updateEmployeeProfile(employee,employeeId)){
+            System.out.println("Employee Profile Updated Successfully.");
+        }else{
+            System.out.println("Employee Profile Update Failed.");
+        }
+
+        return employee;
+    }
+    private double getEmployeeId(){
+        double employeeId = 0;
+
+        System.out.print("Enter Employee Id To Deactivate: ");employeeId=in.nextDouble();
+
+        return employeeId;
+    }
+    private UserCredential getUserCredential(){
+        UserCredential userCredential;
+        String emailId,password;
+
         System.out.print("Email Id: ");emailId=in.next();
-        System.out.print("Gender: ");gender=in.next();
-        System.out.print("Age: ");age=in.nextInt();
-        System.out.print("Mobile Number: ");mobileNumber=in.next();
         System.out.print("Password: ");password=in.next();
 
-        switch (profileCode){
-            case 1:{
-                String PANNumber,CKYCVerificationDocument,CKYCVerificationId;
+        userCredential = new UserCredential(emailId,password);
 
-                System.out.print("PAN Number: ");PANNumber=in.next();
-                System.out.print("CKYC Verification Document: ");CKYCVerificationDocument=in.next();
-                System.out.print("CKYC Verification Id: ");CKYCVerificationId=in.next();
+        if(!isValidUserCredential(userCredential)) userCredential=null;
 
-                user = new Customer(firstName,middleName,lastName,emailId,gender,age,mobileNumber,password,PANNumber,CKYCVerificationDocument,CKYCVerificationId);
+        return userCredential;
+    }
+    private User getProfileInput(int profileCode,boolean validateInput){
+        User user=null;
 
-                break;
+        String firstName,middleName,lastName,emailId = null,gender,password = null,mobileNumber = null;
+        int age;
+
+        try{
+            System.out.print("First Name: ");firstName=reader.readLine();
+            System.out.print("Middle Name: ");middleName=reader.readLine();
+            System.out.print("Last Name: ");lastName=reader.readLine();
+            if(validateInput){
+                System.out.print("Email Id: ");emailId=reader.readLine();
             }
-            case 2:{
-                boolean isActive;
-
-                System.out.print("Is Active: ");isActive=in.nextBoolean();
-
-                user = new Admin(firstName,middleName,lastName,emailId,gender,age,mobileNumber,password,isActive);
-                break;
+            System.out.print("Gender: ");gender=reader.readLine();
+            System.out.print("Age: ");age= in.nextInt();
+            if(validateInput){
+                System.out.print("Mobile Number: ");mobileNumber=reader.readLine();
+                System.out.print("Password: ");password=reader.readLine();
             }
-            case 3:{
-                int yearOfExperience;
-                String employeeDesignation;
-                double employeeCTC;
-                boolean isActive;
 
-                System.out.print("Employee Designation: ");employeeDesignation=in.next();
-                System.out.print("Employee CTC: ");employeeCTC=in.nextDouble();
-                System.out.print("Year Of Experience: ");yearOfExperience=in.nextInt();
-                System.out.print("Is Active: ");isActive=in.nextBoolean();
+            switch (profileCode){
+                case 1:{
+                    String PANNumber,CKYCVerificationDocument,CKYCVerificationId;
 
-                user = new Employee(firstName,middleName,lastName,emailId,gender,age,mobileNumber,password,employeeDesignation,employeeCTC,yearOfExperience,isActive);
-                break;
+                    System.out.print("PAN Number: ");PANNumber=reader.readLine();
+                    System.out.print("CKYC Verification Document: ");CKYCVerificationDocument=reader.readLine();
+                    System.out.print("CKYC Verification Id: ");CKYCVerificationId=reader.readLine();
+
+                    user = new Customer(firstName,middleName,lastName,emailId,gender,age,mobileNumber,password,PANNumber,CKYCVerificationDocument,CKYCVerificationId);
+
+                    break;
+                }
+                case 2:{
+                    boolean isActive;
+
+                    System.out.print("Is Active: ");isActive=in.nextBoolean();
+
+                    user = new Admin(firstName,middleName,lastName,emailId,gender,age,mobileNumber,password,isActive);
+                    break;
+                }
+                case 3:{
+                    int yearOfExperience;
+                    String employeeDesignation;
+                    double employeeCTC;
+                    boolean isActive = false;
+
+                    System.out.print("Employee Designation: ");employeeDesignation=reader.readLine();
+                    System.out.print("Employee CTC: ");employeeCTC=in.nextDouble();
+                    System.out.print("Year Of Experience: ");yearOfExperience=in.nextInt();
+                    if(validateInput){
+                        System.out.print("Is Active: ");isActive=in.nextBoolean();
+                    }
+
+                    user = new Employee(firstName,middleName,lastName,emailId,gender,age,mobileNumber,password,employeeDesignation,employeeCTC,yearOfExperience,isActive);
+                    break;
+                }
             }
         }
-         if(!isValidProfile(user)) user=null;
+        catch (IOException e){
+            System.out.println(e.getMessage());
+        }
+
+         if(validateInput && user!=null &&!isValidProfile(user)) user=null;
 
         return user;
     }
@@ -245,7 +473,7 @@ public class ProfileLogic implements ProfileInterface{
          boolean isValidCustomer=true;
 
         isValidCustomer=isValidUserInfo(customer);
-        if(!Pattern.matches(CommonConstant.PAN_REGEX, customer.getPANNumber())){
+        if(customer.getPANNumber()==null || !Pattern.matches(CommonConstant.PAN_REGEX, customer.getPANNumber())){
             System.out.println("Entered PAN Number is Not Valid.");
             isValidCustomer=false;
         }
@@ -267,7 +495,7 @@ public class ProfileLogic implements ProfileInterface{
             System.out.println("Employee Year Of Experience Must Be Between 0 to 40.");
             isValidEmployee=false;
         }
-        if(!Pattern.matches(CommonConstant.AT_LEAST_ONE_STRING_REGEX, employee.getEmployeeDesignation())){
+        if(employee.getEmployeeDesignation()==null || !Pattern.matches(CommonConstant.AT_LEAST_ONE_STRING_REGEX, employee.getEmployeeDesignation())){
             System.out.println("Employee Designation Must Contain At least One Words.");
             isValidEmployee=false;
         }
@@ -277,5 +505,15 @@ public class ProfileLogic implements ProfileInterface{
         }
 
         return isValidEmployee;
+    }
+    private boolean isValidUserCredential(UserCredential userCredential){
+        boolean isValid=true;
+
+        if(!Pattern.matches(CommonConstant.EMAIL_ID_REGEX,userCredential.getEmailId())){
+            System.out.println("Entered Email Id Format Is Invalid.");
+            isValid=false;
+        }
+
+        return isValid;
     }
 }

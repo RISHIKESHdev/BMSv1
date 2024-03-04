@@ -1,6 +1,7 @@
 package com.bms.functionality.transaction;
 
 import com.bms.Main;
+import com.bms.people.User;
 import com.bms.transaction.*;
 import com.bms.transaction.cash.Cash;
 import com.bms.transaction.cash.Currency;
@@ -12,10 +13,23 @@ import java.util.Scanner;
 public class TransactionLogic implements TransactionInterface {
     private static final Scanner in = Main.globalIn;
 
+    private ArrayList<Double> customerAccountNumbers;
+    private User loggedInUserInfo;
+    public TransactionLogic(ArrayList<Double> loggedInCustomerAccountNumbers, User loggedInUserInfo){
+        this.loggedInUserInfo=loggedInUserInfo;
+        this.customerAccountNumbers=loggedInCustomerAccountNumbers;
+    }
+    public TransactionLogic(){
+
+    }
+    public TransactionLogic(ArrayList<Double> customerAccountNumbers){
+        this.customerAccountNumbers=customerAccountNumbers;
+    }
+
     public boolean registerTransferTransaction(TransferTransaction transferTransaction){
         boolean isTransferRegistered=false;
 
-        TransactionDataLogic dataLogic = new TransactionDataLogic();
+        TransactionDataLogic dataLogic = new TransactionDataLogic(customerAccountNumbers);
 
         if(dataLogic.insertTransferRecord(transferTransaction)){
             System.out.println("Transfer Transaction Id: "+transferTransaction.getTransactionId());
@@ -29,7 +43,7 @@ public class TransactionLogic implements TransactionInterface {
     public boolean registerWithdrawalTransaction(WithdrawTransaction withdrawalTransaction){
         boolean isWithdrawalRegistered=false;
 
-        TransactionDataLogic dataLogic = new TransactionDataLogic();
+        TransactionDataLogic dataLogic = new TransactionDataLogic(customerAccountNumbers);
 
         if(dataLogic.insertWithdrawalRecord(withdrawalTransaction)){
             System.out.println("Transfer Transaction Id: "+withdrawalTransaction.getTransactionId());
@@ -43,7 +57,7 @@ public class TransactionLogic implements TransactionInterface {
     public boolean registerDepositTransaction(DepositTransaction depositTransaction){
         boolean isDepositRegistered=false;
 
-        TransactionDataLogic dataLogic = new TransactionDataLogic();
+        TransactionDataLogic dataLogic = new TransactionDataLogic(customerAccountNumbers);
 
         if(dataLogic.insertDepositRecord(depositTransaction)){
             System.out.println("Transfer Transaction Id: "+depositTransaction.getTransactionId());

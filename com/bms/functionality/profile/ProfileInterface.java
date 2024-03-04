@@ -5,10 +5,17 @@ import com.bms.people.*;
 import java.sql.Connection;
 
 public interface ProfileInterface {
-    Nominee addNominee(Connection connection,double accountNumber);
+    Nominee addNomineeOnAccountCreation(Connection connection, double accountNumber);
     Employee registerEmployee();
-    Customer registerCustomer(Connection connection);
+    Customer registerCustomer();
+    Customer registerCustomerOnAccountCreation(Connection connection);
     Admin registerAdmin();
     Customer getCustomerByCIFNumber(Connection connection,double CIFNumber);
     boolean checkCustomerByCIFNumber(Connection connection,double CIFNumber);
+    Admin getAdminOnLogin();
+    Employee getEmployeeOnLogin();
+    Customer getCustomerOnLogin();
+    void deActivateEmployee();
+    Employee employeeProfileUpdate();
+    Customer customerProfileUpdate();
 }
