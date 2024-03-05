@@ -34,6 +34,7 @@ public class TransactionLogic implements TransactionInterface {
         if(dataLogic.insertTransferRecord(transferTransaction)){
             System.out.println("Transfer Transaction Id: "+transferTransaction.getTransactionId());
             System.out.println("Transfer Transaction Record Inserted.");
+            isTransferRegistered=true;
         }else{
             System.out.println("Transfer Transaction Record Insertion Failed.");
         }
@@ -46,10 +47,11 @@ public class TransactionLogic implements TransactionInterface {
         TransactionDataLogic dataLogic = new TransactionDataLogic(customerAccountNumbers);
 
         if(dataLogic.insertWithdrawalRecord(withdrawalTransaction)){
-            System.out.println("Transfer Transaction Id: "+withdrawalTransaction.getTransactionId());
-            System.out.println("Transfer Transaction Record Inserted.");
+            System.out.println("Withdraw Transaction Id: "+withdrawalTransaction.getTransactionId());
+            System.out.println("Withdraw Transaction Record Inserted.");
+            isWithdrawalRegistered=true;
         }else{
-            System.out.println("Transfer Transaction Record Insertion Failed.");
+            System.out.println("Withdraw Transaction Record Insertion Failed.");
         }
 
         return isWithdrawalRegistered;
@@ -67,10 +69,11 @@ public class TransactionLogic implements TransactionInterface {
         TransactionDataLogic dataLogic = new TransactionDataLogic(customerAccountNumbers);
 
         if(dataLogic.insertDepositRecord(depositTransaction)){
-            System.out.println("Transfer Transaction Id: "+depositTransaction.getTransactionId());
-            System.out.println("Transfer Transaction Record Inserted.");
+            System.out.println("Deposit Transaction Id: "+depositTransaction.getTransactionId());
+            System.out.println("Deposit Transaction Record Inserted.");
+            isDepositRegistered=true;
         }else{
-            System.out.println("Transfer Transaction Record Insertion Failed.");
+            System.out.println("Deposit Transaction Record Insertion Failed.");
         }
 
         return isDepositRegistered;
@@ -190,17 +193,18 @@ public class TransactionLogic implements TransactionInterface {
         boolean toContinue = true;
 
         while(toContinue){
-            System.out.print("Enter Denomination");currencyDenomination=in.next();
-            denomination=Currency.Denomination.valueOf(currencyDenomination);
+            System.out.print("Enter Denomination: ");currencyDenomination=in.next();
+            denomination=Currency.Denomination.valueOf(currencyDenomination.toUpperCase());
             if(!isValidDenomination(denomination)){
-                cash=null;
                 break;
             }
-            System.out.print("INR Value");inrValue=in.nextDouble();
-            System.out.print("Denomination Count");count=in.nextInt();
+            System.out.print("INR Value: ");inrValue=in.nextDouble();
+            System.out.print("Denomination Count: ");count=in.nextInt();
             currencyList.add(new Currency(denomination,inrValue,count));
             System.out.print("Press 1 To Continue Adding Currency: ");toContinue=(in.nextInt()==1);
         }
+
+        cash = new Cash(currencyList);
         
         return cash;
     }

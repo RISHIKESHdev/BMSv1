@@ -281,7 +281,7 @@ public class AccountDataLogic {
             if(connection!=null){
                 connection.setAutoCommit(false);
                 accountNumber=accountLogic.getAccountNumberOnUserRequest(connection);
-                if(accountNumber>2450000000000000D){
+                if(accountNumber>=2450000000000000D){
                     try(PreparedStatement ps = connection.prepareStatement(AccountSQLQuery.INSERT_LOAN_QUERY, Statement.RETURN_GENERATED_KEYS)){
                         ps.setDouble(1,accountNumber);
                         ps.setDouble(2,goldLoan.getLoanAmount());
@@ -331,7 +331,7 @@ public class AccountDataLogic {
             if(connection!=null){
                 connection.setAutoCommit(false);
                 accountNumber=accountLogic.getAccountNumberOnUserRequest(connection);
-                if(accountNumber>2450000000000000D){
+                if(accountNumber>=2450000000000000D){
                     try(PreparedStatement ps = connection.prepareStatement(AccountSQLQuery.INSERT_LOAN_QUERY, Statement.RETURN_GENERATED_KEYS)){
                         ps.setDouble(1,accountNumber);
                         ps.setDouble(2,homeLoan.getLoanAmount());

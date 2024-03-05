@@ -95,7 +95,7 @@ public class AccountLogic implements AccountInterface{
         if(dataLogic.getCustomerAccountNumbers(customerAccountNumbers,CIFNumber)){
             System.out.println("Logged In Customer Account Numbers: ");
             for(double accountNumber: customerAccountNumbers){
-                System.out.println(accountNumber);
+                System.out.printf("%.0f\n", accountNumber);
             }
         }else{
             System.out.println("No Account Found For the Customer.");
@@ -118,12 +118,17 @@ public class AccountLogic implements AccountInterface{
     }
     public double getCustomerAccountNumber(){
         double accountNumber = 0;
+        ArrayList<Double> accountNumberList = new ArrayList<>();
 
         if(customerAccountNumbers!=null && !customerAccountNumbers.isEmpty()){
             for(Double customerAccountNumber: customerAccountNumbers){
                 System.out.println("Logged In Customer Account Number:-");
-                System.out.println(customerAccountNumber);
-                System.out.print("Select From Above Account Number: ");accountNumber=in.nextDouble();
+                System.out.printf("%.0f\n",customerAccountNumber);
+                accountNumberList.add(customerAccountNumber);
+            }
+            System.out.print("Select From Above Account Number: ");accountNumber=in.nextDouble();
+            if(!accountNumberList.contains(accountNumber)){
+                accountNumber=0;
             }
         }
 
@@ -147,7 +152,7 @@ public class AccountLogic implements AccountInterface{
     public Loan registerHomeLoan(){
         Loan homeLoan;
 
-        AccountDataLogic dataLogic = new AccountDataLogic();
+        AccountDataLogic dataLogic = new AccountDataLogic(customerAccountNumbers);
         homeLoan = getLoanInfo(2);
 
         if(homeLoan!=null && dataLogic.insertHomeLoan((Home)homeLoan)) {
@@ -270,7 +275,7 @@ public class AccountLogic implements AccountInterface{
                 loan = getGoldLoanInfo();
                 break;
             }
-            case 3:{
+            case 2:{
                 loan = getHomeInfo();
                 break;
             }

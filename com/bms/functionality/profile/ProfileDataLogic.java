@@ -2,6 +2,7 @@ package com.bms.functionality.profile;
 
 import com.bms.Main;
 import com.bms.bank.Address;
+import com.bms.functionality.CommonConstant;
 import com.bms.functionality.MySQLConnection;
 import com.bms.functionality.account.AccountLogic;
 import com.bms.functionality.branch.BranchLogic;
@@ -11,6 +12,7 @@ import com.bms.people.*;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.Scanner;
+import java.util.regex.Pattern;
 
 public class ProfileDataLogic {
     private final Scanner in = Main.globalIn;
@@ -270,32 +272,38 @@ public class ProfileDataLogic {
 
         return isEmployeeProfileUpdated;
     }
+    private String ifSpaceReplaceNull(String string){
+        if(string==null || Pattern.matches(CommonConstant.EMPTY_REGEX,string)) return null;
+        return string;
+    }
     private String getUpdateUserQuery(User user){
         String updateUserQuery="";
 
-        if(user.getFirstName()!=null){
+        if(ifSpaceReplaceNull(user.getFirstName())!=null){
             updateUserQuery +=" first_Name='"+user.getFirstName() +"', ";
         }
-        if(user.getMiddleName()!=null){
+        if(ifSpaceReplaceNull(user.getMiddleName())!=null){
             updateUserQuery +=" middle_Name='"+user.getMiddleName() +"', ";
         }
-        if(user.getLastName()!=null){
+        if(ifSpaceReplaceNull(user.getLastName())!=null){
             updateUserQuery +=" last_Name='"+user.getLastName() +"', ";
         }
-        if(user.getGender()!=null){
+        if(ifSpaceReplaceNull(user.getGender())!=null){
             updateUserQuery +=" gender='"+user.getGender() +"', ";
         }
         if(user.getAge()!=0){
             updateUserQuery +=" age="+user.getAge() +", ";
         }
-        if(user.getMobileNumber()!=null){
+        if(ifSpaceReplaceNull(user.getMobileNumber())!=null){
             updateUserQuery +=" mobile_Number='"+user.getMobileNumber() +"', ";
         }
 
-        if(updateUserQuery!=null && user instanceof Customer){updateUserQuery = updateUserQuery.substring(0, updateUserQuery.length() - 2);
+        if(updateUserQuery!="" && user instanceof Customer){
+            updateUserQuery = updateUserQuery.substring(0, updateUserQuery.length() - 2);
             updateUserQuery = "UPDATE User JOIN Customer ON Customer.user_Id=User.Id SET" + updateUserQuery+ " WHERE Customer.CIF_Number=?";
         }
-        else if(updateUserQuery!=null && user instanceof Employee){updateUserQuery = updateUserQuery.substring(0, updateUserQuery.length() - 1);
+        else if(updateUserQuery!="" && user instanceof Employee){
+            updateUserQuery = updateUserQuery.substring(0, updateUserQuery.length() - 2);
             updateUserQuery = "UPDATE User JOIN Employee ON Employee.user_Id=User.Id SET" + updateUserQuery+ " WHERE Employee.Employee_Id=?";
         }else{
             updateUserQuery=null;
@@ -304,19 +312,20 @@ public class ProfileDataLogic {
         return updateUserQuery;
     }
     private String getUpdateCustomerQuery(Customer customer){
-        String updateCustomerQuery = null;
+        String updateCustomerQuery = "";
 
-        if(customer.getCKYCVerificationDocument()!=null){
-            updateCustomerQuery +=" CKYC_Verification_Document="+customer.getCKYCVerificationDocument();
+        if(ifSpaceReplaceNull(customer.getCKYCVerificationDocument())!=null){
+            updateCustomerQuery +=" CKYC_Verification_Document='"+customer.getCKYCVerificationDocument() +"', ";
         }
-        if(customer.getCKYCVerificationId()!=null){
-            updateCustomerQuery +=" CKYC_Verification_Id="+customer.getCKYCVerificationId();
+        if(ifSpaceReplaceNull(customer.getCKYCVerificationId())!=null){
+            updateCustomerQuery +=" CKYC_Verification_Id='"+customer.getCKYCVerificationId() +"', ";
         }
-        if(customer.getPANNumber()!=null){
-            updateCustomerQuery +=" PAN_Number="+customer.getPANNumber();
+        if(ifSpaceReplaceNull(customer.getPANNumber())!=null){
+            updateCustomerQuery +=" PAN_Number='"+customer.getPANNumber() +"', ";
         }
 
-        if(updateCustomerQuery!=null){
+        if(updateCustomerQuery!=""){
+            updateCustomerQuery = updateCustomerQuery.substring(0, updateCustomerQuery.length() - 2);
             updateCustomerQuery = "UPDATE Customer SET" + updateCustomerQuery+ " WHERE Customer.CIF_Number=?";
         }
 
@@ -325,7 +334,7 @@ public class ProfileDataLogic {
     private String getUpdateEmployeeQuery(Employee employee){
         String updateEmployeeQuery = "";
 
-        if(employee.getEmployeeDesignation()!=null){
+        if(ifSpaceReplaceNull(employee.getEmployeeDesignation())!=null){
             updateEmployeeQuery +=" employee_Designation='"+employee.getEmployeeDesignation() +"', ";
         }
         if(employee.getEmployeeCTC()!=0){
@@ -335,7 +344,8 @@ public class ProfileDataLogic {
             updateEmployeeQuery +=" year_Of_Experience="+employee.getYearOfExperience() +", ";
         }
 
-        if(updateEmployeeQuery!=null){updateEmployeeQuery = updateEmployeeQuery.substring(0, updateEmployeeQuery.length() - 2);
+        if(updateEmployeeQuery!=""){
+            updateEmployeeQuery = updateEmployeeQuery.substring(0, updateEmployeeQuery.length() - 2);
             updateEmployeeQuery = "UPDATE Employee SET" + updateEmployeeQuery+ " WHERE Employee.Employee_Id=?";
         }
 
@@ -473,7 +483,7 @@ public class ProfileDataLogic {
     boolean selectNomineeDetail(Connection connection,double accountNumer){
         boolean isRecordPresent=false;
 
-        try(PreparedStatement ps = connection.prepareStatement(ProfileSQLQuery.SELECT_NOMINEE_BY_ID_QUERY)){
+        try(PreparedStatement ps = connection.prepareStatement(ProfileSQLQuery.SELECT_NOMINEE_BY_ACCOUNT_NUMBER)){
             ps.setDouble(1,accountNumer);
             ResultSet rs = ps.executeQuery();
             while(rs.next()){

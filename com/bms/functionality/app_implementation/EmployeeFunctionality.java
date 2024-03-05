@@ -4,6 +4,7 @@ import com.bms.functionality.account.AccountLogic;
 import com.bms.functionality.app_interface.EmployeeInterface;
 import com.bms.functionality.branch.BranchLogic;
 import com.bms.functionality.card.CardLogics;
+import com.bms.functionality.master.CardMaster;
 import com.bms.people.User;
 import com.bms.transaction.card.CoBrandedCreditCard;
 import com.bms.transaction.card.CreditCard;
@@ -39,6 +40,12 @@ public class EmployeeFunctionality extends CustomerEmployeeFunctionality impleme
     public DebitCard saveNewDebitCardMaster() {
         CardLogics cardLogic = new CardLogics();
         return cardLogic.saveNewDebitCard();
+    }
+
+    @Override
+    public void deactivateMasterCard(){
+        CardMaster cardMaster = new CardMaster();
+        cardMaster.deActivateMasterCard();
     }
 
     @Override

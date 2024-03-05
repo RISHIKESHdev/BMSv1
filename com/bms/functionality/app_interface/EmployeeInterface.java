@@ -9,5 +9,6 @@ public interface EmployeeInterface extends CustomerEmployeeInterface{
     public CoBrandedCreditCard saveNewBrandCreditCardMaster();
     public DebitCard saveNewDebitCardMaster();
     public void createCustomerAccount();
+    public void deactivateMasterCard();
     public void changeCustomerBranch();
 }

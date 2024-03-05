@@ -70,7 +70,6 @@ class BranchDataLogic {
                         branchId=branch.getBranchId(connection);
                         ps.setInt(1,branchId);
                         ps.setDouble(2,accountNumber);
-
                         int rs=ps.executeUpdate();
                         isCustomerBranchUpdated=rs>0;
                     }

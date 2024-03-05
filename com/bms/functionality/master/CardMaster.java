@@ -31,7 +31,7 @@ public class CardMaster {
 
         return card;
     }
-    public boolean deActivateCard(){
+    public boolean deActivateMasterCard(){
         boolean isCardDeActivated=false;
 
         CardLogics cardLogic = new CardLogics();

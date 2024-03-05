@@ -60,9 +60,9 @@ public class CardLogics implements CardInterface{
         CardDataLogic dataLogic = new CardDataLogic(customerAccountNumbers);
 
         if(dataLogic.deactivateCardRecord()){
-            System.out.println("New Card Added Successfully.");
+            System.out.println("Card Deactivated Successfully.");
         }else{
-            System.out.println("New Card Insertion Failed.");
+            System.out.println("Card Deactivation Failed.");
         }
 
         return isDeactivated;
@@ -171,7 +171,7 @@ public class CardLogics implements CardInterface{
         CoBrandedCreditCard coBrandedCreditCard;
 
         CardDataLogic dataLogic = new CardDataLogic();
-        coBrandedCreditCard=(CoBrandedCreditCard) getNewCardInfo(1);
+        coBrandedCreditCard=(CoBrandedCreditCard) getNewCardInfo(3);
 
         if(coBrandedCreditCard!=null && dataLogic.insertNewCoBrandedCreditCard(coBrandedCreditCard)){
             System.out.println("Co Branded Credit Card Master Saved Successfully.");

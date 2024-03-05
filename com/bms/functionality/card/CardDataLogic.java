@@ -34,9 +34,10 @@ public class CardDataLogic {
         try(PreparedStatement ps =connection.prepareStatement(CardSQLQuery.SELECT_ACTIVE_CARD)){
             ps.setDouble(1,accountNumber);
             ResultSet rs=ps.executeQuery();
+            System.out.println("Active Card Number: ");
             while(rs.next()){
                 isRecordAvailable=true;
-                System.out.println(rs.getDouble("card_Number"));
+                System.out.printf("%.0f\n" + rs.getDouble("card_Number"));
             }
         }catch(SQLException e){
             System.out.println(e.getMessage());
@@ -412,8 +413,8 @@ public class CardDataLogic {
                 if(cardId>0){
                     try(PreparedStatement ps = connection.prepareStatement(CardSQLQuery.INSERT_CREDIT_CARD_MASTER_QUERY)){
                         ps.setInt(1,cardId);
-                        ps.setInt(1,creditCard.getInterestFreeCreditDays());
-                        ps.setDouble(2,creditCard.getRateOfInterest());
+                        ps.setInt(2,creditCard.getInterestFreeCreditDays());
+                        ps.setDouble(3,creditCard.getRateOfInterest());
                         int rs = ps.executeUpdate();
                         if(rs>0){
                             isNewCreditCardInserted=true;

@@ -19,4 +19,5 @@ public class CommonConstant {
     public static final String BANK_NAME="State Bank Of International India.";
     public static final String BANK_CODE="SBII";
     public static final String BANK_TYPE="Public Sector";
+    public static final String EMPTY_REGEX="^\\s*$";
 }

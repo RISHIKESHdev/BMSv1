@@ -206,15 +206,13 @@ public class TransactionDataLogic {
             if(connection !=null){
                 connection.setAutoCommit(false);
                 if(insertTransactionRecord(connection,transferTransaction)){
-                    if(insertPayModeRecord(connection,transferTransaction.getPayModeDetail(), transferTransaction.getTransactionId())){
-                        try(PreparedStatement ps = connection.prepareStatement(TransactionSQLQuery.INSERT_TRANSFER_TRAN_QUERY)){
-                            ps.setInt(1,transferTransaction.getTransactionId());
-                            ps.setString(2,transferTransaction.getTransactionType().toString());
-                            ps.setString(3,transferTransaction.getBeneficiaryIFSCCode());
-                            ps.setDouble(4,transferTransaction.getBeneficiaryAccountNumber());
-                            int rs = ps.executeUpdate();
-                            isRecordInserted = (rs>0);
-                        }
+                    try(PreparedStatement ps = connection.prepareStatement(TransactionSQLQuery.INSERT_TRANSFER_TRAN_QUERY)){
+                        ps.setInt(1,transferTransaction.getTransactionId());
+                        ps.setString(2,transferTransaction.getTransactionType().toString());
+                        ps.setString(3,transferTransaction.getBeneficiaryIFSCCode());
+                        ps.setDouble(4,transferTransaction.getBeneficiaryAccountNumber());
+                        int rs = ps.executeUpdate();
+                        isRecordInserted = (rs>0);
                     }
                 }
                 if(isRecordInserted ){

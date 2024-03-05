@@ -48,6 +48,7 @@ public class Application{
                     System.out.println(++optionIndex + ". Add New Debit Card Master Record.");
                     System.out.println(++optionIndex + ". Add New Credit Card Master Record.");
                     System.out.println(++optionIndex + ". Add New Co Branded Credit Card Master Record.");
+                    System.out.println(++optionIndex + ". Deactivate Card Master Record.");
                 }
                 if(loggedInUserInfo instanceof Admin){
                     System.out.println(++optionIndex + ". Add Admin.");
@@ -172,6 +173,11 @@ public class Application{
                                 break;
                             }
                             case 12:{
+                                EmployeeFunctionality employee = new EmployeeFunctionality();
+                                employee.deactivateMasterCard();
+                                break;
+                            }
+                            case 13:{
                                 EmployeeFunctionality employee = new EmployeeFunctionality(loggedInUserInfo);
                                 if(employee.signOut()){
                                     loggedInUserInfo=null;
@@ -181,7 +187,7 @@ public class Application{
                                 }
                                 break;
                             }
-                            case 13: {
+                            case 14: {
                                 loggedInUserInfo =null;
                                 loggedInCustomerAccountNumbers =new ArrayList<>();
                                 break applicationWhile;
