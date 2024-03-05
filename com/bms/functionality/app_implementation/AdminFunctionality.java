@@ -3,9 +3,15 @@ package com.bms.functionality.app_implementation;
 import com.bms.functionality.app_interface.AdminInterface;
 import com.bms.functionality.branch.BranchLogic;
 import com.bms.functionality.profile.ProfileLogic;
+import com.bms.people.User;
 
 public class AdminFunctionality extends UserFunctionality implements AdminInterface {
+    public AdminFunctionality(){
 
+    }
+    public AdminFunctionality(User admin){
+        super(admin);
+    }
     @Override
     public void addAdmin() {
         ProfileLogic profile = new ProfileLogic();

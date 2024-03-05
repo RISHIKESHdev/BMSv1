@@ -4,6 +4,7 @@ import com.bms.functionality.account.AccountLogic;
 import com.bms.functionality.app_interface.CustomerEmployeeInterface;
 import com.bms.functionality.card.CardLogics;
 import com.bms.functionality.profile.ProfileLogic;
+import com.bms.people.User;
 
 import java.util.ArrayList;
 
@@ -11,6 +12,9 @@ public class CustomerEmployeeFunctionality extends UserFunctionality implements 
     private ArrayList<Double> customerAccountNumbers;
     public CustomerEmployeeFunctionality(){
 
+    }
+    public CustomerEmployeeFunctionality(User user){
+        super(user);
     }
     public CustomerEmployeeFunctionality(ArrayList<Double> customerAccountNumbers){
         this.customerAccountNumbers=customerAccountNumbers;

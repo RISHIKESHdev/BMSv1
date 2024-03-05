@@ -4,5 +4,5 @@ import com.bms.people.User;
 
 public interface UserInterface {
     public User signIn(int profileCode);
-    public void signOut();
+    public boolean signOut();
 }

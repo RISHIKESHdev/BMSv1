@@ -11,33 +11,8 @@ import java.util.ArrayList;
 import java.util.Scanner;
 
 public class Application{
-    private String loggedInUserEmailId=null;
     private User loggedInUserInfo=null;
     private ArrayList<Double> loggedInCustomerAccountNumbers =new ArrayList<>();
-
-    public String getLoggedInUserEmailId() {
-        return loggedInUserEmailId;
-    }
-
-    public void setLoggedInUserEmailId(String loggedInUserEmailId) {
-        this.loggedInUserEmailId = loggedInUserEmailId;
-    }
-
-    public User getLoggedInUserInfo() {
-        return loggedInUserInfo;
-    }
-
-    public void setLoggedInUserInfo(User loggedInUserInfo) {
-        this.loggedInUserInfo = loggedInUserInfo;
-    }
-
-    public ArrayList<Double> getLoggedInCustomerAccountNumbers() {
-        return loggedInCustomerAccountNumbers;
-    }
-
-    public void addLoggedInUserAccountNumbers(Double loggedInUserAccountNumber) {
-        this.loggedInCustomerAccountNumbers.add(loggedInUserAccountNumber);
-    }
 
     public void appFeatures(){
         int optionIndex=0;
@@ -50,7 +25,7 @@ public class Application{
         applicationWhile: while(userOption<optionIndex){
             optionIndex=0;
             System.out.println("\n");
-            if(loggedInUserEmailId != null){
+            if(loggedInUserInfo != null){
                 if(loggedInUserInfo instanceof Customer || loggedInUserInfo instanceof Employee){
                     System.out.println(++optionIndex + ". Add Card.");
                     System.out.println(++optionIndex + ". Delete Card.");
@@ -95,33 +70,53 @@ public class Application{
 
             userOption = in.nextInt();
 
-            if(loggedInUserEmailId != null){
+            if(loggedInUserInfo != null){
                 if(loggedInUserInfo instanceof Admin){
-                    AdminFunctionality admin = new AdminFunctionality();
                     switch(userOption){
                         case 1:{
+                            AdminFunctionality admin = new AdminFunctionality();
                             admin.addAdmin();
                             break;
                         }
                         case 2:{
+                            AdminFunctionality admin = new AdminFunctionality();
                             admin.addEmployee();
                             break;
                         }
                         case 3:{
+                            AdminFunctionality admin = new AdminFunctionality();
                             admin.deleteEmployee();
                             break;
                         }
                         case 4:{
+                            AdminFunctionality admin = new AdminFunctionality();
                             admin.updateEmployee();
                             break;
                         }
                         case 5:{
+                            AdminFunctionality admin = new AdminFunctionality();
                             admin.addBranch();
                             break;
                         }
                         case 6:{
+                            AdminFunctionality admin = new AdminFunctionality();
                             admin.changeEmployeeBranch();
                             break;
+                        }
+                        case 7:{
+                            AdminFunctionality admin = new AdminFunctionality(loggedInUserInfo);
+                            if(admin.signOut()){
+                                loggedInUserInfo=null;
+                                loggedInCustomerAccountNumbers =new ArrayList<>();
+                            }else{
+                                System.out.println("Admin Logout Failed.");
+                            }
+                            break;
+                        }
+                        case 8: {
+                            loggedInUserInfo =null;
+                            loggedInCustomerAccountNumbers =new ArrayList<>();
+                            break applicationWhile;
                         }
                     }
                 }else{
@@ -176,6 +171,21 @@ public class Application{
                                 employee.saveNewBrandCreditCardMaster();
                                 break;
                             }
+                            case 12:{
+                                EmployeeFunctionality employee = new EmployeeFunctionality(loggedInUserInfo);
+                                if(employee.signOut()){
+                                    loggedInUserInfo=null;
+                                    loggedInCustomerAccountNumbers =new ArrayList<>();
+                                }else{
+                                    System.out.println("Employee Logout Failed.");
+                                }
+                                break;
+                            }
+                            case 13: {
+                                loggedInUserInfo =null;
+                                loggedInCustomerAccountNumbers =new ArrayList<>();
+                                break applicationWhile;
+                            }
                         }
                     }else if(loggedInUserInfo instanceof Customer){
                         switch(userOption){
@@ -209,6 +219,21 @@ public class Application{
                                 customer.viewAllTransaction();
                                 break;
                             }
+                            case 13:{
+                                CustomerFunctionality customer = new CustomerFunctionality(loggedInUserInfo);
+                                if(customer.signOut()){
+                                    loggedInUserInfo=null;
+                                    loggedInCustomerAccountNumbers =new ArrayList<>();
+                                }else{
+                                    System.out.println("Customer Logout Failed.");
+                                }
+                                break;
+                            }
+                            case 14: {
+                                loggedInUserInfo =null;
+                                loggedInCustomerAccountNumbers =new ArrayList<>();
+                                break applicationWhile;
+                            }
                         }
                     }
                 }
@@ -225,7 +250,6 @@ public class Application{
                         Customer customer = (Customer) customerLogic.signIn(1);
                         if(customer!=null){
                             loggedInUserInfo=customer;
-                            loggedInUserEmailId=customer.getEmailId();
                             loggedInCustomerAccountNumbers =accountLogic.getCustomerAccountNumberOnLogin(customer.getCIFNumber());
                         }
                         break;
@@ -235,7 +259,6 @@ public class Application{
                         Employee employee = (Employee) employeeLogic.signIn(2);
                         if(employee!=null){
                             loggedInUserInfo=employee;
-                            loggedInUserEmailId=employee.getEmailId();
                         }
                         break;
                     }
@@ -244,12 +267,13 @@ public class Application{
                         Admin admin = (Admin) adminLogic.signIn(3);
                         if(admin!=null){
                             loggedInUserInfo=admin;
-                            loggedInUserEmailId=admin.getEmailId();
                         }
                         break;
                     }
                     case 5: {
-                        if(loggedInUserInfo !=null) break applicationWhile;
+                        loggedInUserInfo =null;
+                        loggedInCustomerAccountNumbers =new ArrayList<>();
+                        break applicationWhile;
                     }
                 }
             }

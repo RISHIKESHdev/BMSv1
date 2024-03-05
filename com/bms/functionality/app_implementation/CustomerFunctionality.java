@@ -14,6 +14,9 @@ import java.util.ArrayList;
 public class CustomerFunctionality extends CustomerEmployeeFunctionality implements CustomerInterface{
     private ArrayList<Double> loggedInCustomerAccountNumbers;
     private User loggedInUserInfo;
+    public CustomerFunctionality(User customer){
+        super(customer);
+    }
     public CustomerFunctionality(){
 
     }
