@@ -6,6 +6,10 @@ public class WithdrawTransaction extends Transaction{
     private String withdrawalIFSCCode;
     private String withdrawalLocation;
 
+    public WithdrawTransaction(LocalDateTime transactionDateTime, double transactionAmount, String withdrawalIFSCCode) {
+        super(transactionDateTime, transactionAmount);
+        this.withdrawalIFSCCode = withdrawalIFSCCode;
+    }
     public WithdrawTransaction(LocalDateTime transactionDateTime, double transactionAmount, PaymentMode payModeDetail, String withdrawalIFSCCode, String withdrawalLocation) {
         super(transactionDateTime, transactionAmount, payModeDetail);
         this.withdrawalIFSCCode = withdrawalIFSCCode;

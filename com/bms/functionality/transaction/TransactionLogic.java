@@ -54,6 +54,13 @@ public class TransactionLogic implements TransactionInterface {
 
         return isWithdrawalRegistered;
     }
+    public void viewAllTransaction(){
+        TransactionDataLogic dataLogic = new TransactionDataLogic(customerAccountNumbers);
+
+        if(!dataLogic.selectAndViewTransaction()){
+            System.out.println("No Record Found.");
+        }
+    }
     public boolean registerDepositTransaction(DepositTransaction depositTransaction){
         boolean isDepositRegistered=false;
 

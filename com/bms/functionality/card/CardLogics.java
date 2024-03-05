@@ -1,7 +1,6 @@
 package com.bms.functionality.card;
 
 import com.bms.Main;
-import com.bms.functionality.account.AccountLogic;
 import com.bms.transaction.card.Card;
 import com.bms.transaction.card.CoBrandedCreditCard;
 import com.bms.transaction.card.CreditCard;

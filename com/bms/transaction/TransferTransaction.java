@@ -9,6 +9,12 @@ public class TransferTransaction extends Transaction{
     private String beneficiaryIFSCCode;
     private TransactionType transactionType;
 
+    public TransferTransaction(LocalDateTime transactionDateTime, double transactionAmount,double beneficiaryAccountNumber, String beneficiaryIFSCCode,TransactionType transactionType) {
+        super(transactionDateTime, transactionAmount);
+        this.beneficiaryAccountNumber = beneficiaryAccountNumber;
+        this.beneficiaryIFSCCode = beneficiaryIFSCCode;
+        this.transactionType = transactionType;
+    }
     public TransferTransaction(LocalDateTime transactionDateTime, double transactionAmount, PaymentMode payModeDetail,double beneficiaryAccountNumber, String beneficiaryIFSCCode,TransactionType transactionType) {
         super(transactionDateTime, transactionAmount, payModeDetail);
         this.beneficiaryAccountNumber = beneficiaryAccountNumber;

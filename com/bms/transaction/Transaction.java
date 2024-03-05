@@ -9,6 +9,10 @@ public abstract class Transaction {
     private String payMode;
     private PaymentMode payModeDetail;
 
+    public Transaction(LocalDateTime transactionDateTime, double transactionAmount) {
+        this.transactionDateTime = transactionDateTime;
+        this.transactionAmount = transactionAmount;
+    }
     public Transaction(LocalDateTime transactionDateTime, double transactionAmount, PaymentMode payModeDetail) {
         this.transactionDateTime = transactionDateTime;
         this.transactionAmount = transactionAmount;

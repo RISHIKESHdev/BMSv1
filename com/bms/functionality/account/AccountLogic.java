@@ -1,6 +1,5 @@
 package com.bms.functionality.account;
 
-import com.bms.Application;
 import com.bms.Main;
 import com.bms.accounts.Account;
 import com.bms.accounts.CurrentAccount;
@@ -10,13 +9,11 @@ import com.bms.accounts.loan.Gold;
 import com.bms.accounts.loan.Home;
 import com.bms.accounts.loan.Loan;
 import com.bms.functionality.CommonConstant;
-import com.bms.people.Customer;
 import com.bms.people.User;
 
 import java.sql.Connection;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Optional;
 import java.util.Scanner;
 
 public class AccountLogic implements AccountInterface{
@@ -132,6 +129,36 @@ public class AccountLogic implements AccountInterface{
 
         return accountNumber;
     }
+    public Loan registerGoldLoan(){
+        Loan goldLoan;
+
+        AccountDataLogic dataLogic = new AccountDataLogic(customerAccountNumbers);
+        goldLoan = getLoanInfo(1);
+
+        if(goldLoan!=null && dataLogic.insertGoldLoan((Gold)goldLoan)) {
+            System.out.println("Gold Loan Id: "+goldLoan.getLoanId());
+            System.out.println("Gold Loan Record Inserted.");
+        }else{
+            System.out.println("Gold Loan Creation Failed.");
+        }
+
+        return goldLoan;
+    }
+    public Loan registerHomeLoan(){
+        Loan homeLoan;
+
+        AccountDataLogic dataLogic = new AccountDataLogic();
+        homeLoan = getLoanInfo(2);
+
+        if(homeLoan!=null && dataLogic.insertHomeLoan((Home)homeLoan)) {
+            System.out.println("Home Loan Id: "+homeLoan.getLoanId());
+            System.out.println("Home Loan Record Inserted.");
+        }else{
+            System.out.println("Home Loan Creation Failed.");
+        }
+
+        return homeLoan;
+    }
 
     private Account getAccountInfo(int accountCode){
         Account account=null;
@@ -235,39 +262,6 @@ public class AccountLogic implements AccountInterface{
 
         return isValidSavingAccount;
     }
-
-
-    public Loan registerGoldLoan(){
-        Loan goldLoan;
-
-        AccountDataLogic dataLogic = new AccountDataLogic(customerAccountNumbers);
-        goldLoan = getLoanInfo(1);
-
-        if(goldLoan!=null && dataLogic.insertGoldLoan((Gold)goldLoan)) {
-            System.out.println("Gold Loan Id: "+goldLoan.getLoanId());
-            System.out.println("Gold Loan Record Inserted.");
-        }else{
-            System.out.println("Gold Loan Creation Failed.");
-        }
-
-        return goldLoan;
-    }
-    public Loan registerHomeLoan(){
-        Loan homeLoan;
-
-        AccountDataLogic dataLogic = new AccountDataLogic();
-        homeLoan = getLoanInfo(2);
-
-        if(homeLoan!=null && dataLogic.insertHomeLoan((Home)homeLoan)) {
-            System.out.println("Home Loan Id: "+homeLoan.getLoanId());
-            System.out.println("Home Loan Record Inserted.");
-        }else{
-            System.out.println("Home Loan Creation Failed.");
-        }
-
-        return homeLoan;
-    }
-
     private Loan getLoanInfo(int loanCode){
         Loan loan = null;
 

@@ -1,5 +1,6 @@
 package com.bms.functionality.transaction;
 
+import com.bms.Main;
 import com.bms.functionality.MySQLConnection;
 import com.bms.functionality.account.AccountLogic;
 import com.bms.transaction.*;
@@ -7,15 +8,66 @@ import com.bms.transaction.cash.Cash;
 import com.bms.transaction.cash.Currency;
 
 import java.sql.*;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 
 public class TransactionDataLogic {
     private ArrayList<Double> customerAccountNumbers;
     public TransactionDataLogic(){
-
     }
     public TransactionDataLogic(ArrayList<Double> customerAccountNumbers){
         this.customerAccountNumbers=customerAccountNumbers;
+    }
+    private void displayAllTransaction(ArrayList<Transaction> transactions){
+        for(Transaction transaction:transactions){
+            if(transaction instanceof DepositTransaction){
+                System.out.println("Transaction Date: " + transaction.getTransactionDateTime().format(Main.dateTimeFormat) + " Transaction Amount: " + transaction.getTransactionAmount() + " Deposit IFSC Code: " + ((DepositTransaction) transaction).getDepositIFSCCode());
+            } else if (transaction instanceof WithdrawTransaction) {
+                System.out.println("Transaction Date: " + transaction.getTransactionDateTime().format(Main.dateTimeFormat) + " Transaction Amount: " + transaction.getTransactionAmount() + " Withdraw IFSC Code: " + ((WithdrawTransaction) transaction).getWithdrawalIFSCCode());
+            }else{
+                System.out.println("Transaction Date: " + transaction.getTransactionDateTime().format(Main.dateTimeFormat) + " Transaction Amount: " + transaction.getTransactionAmount() + " Beneficiary Account Number: " + ((TransferTransaction) transaction).getBeneficiaryAccountNumber() +" Beneficiary IFSC Code: "+ ((TransferTransaction) transaction).getBeneficiaryIFSCCode()+ " Transaction Type: " + ((TransferTransaction) transaction).getTransactionType().toString());
+            }
+        }
+    }
+    boolean selectAndViewTransaction(){
+        boolean isRecordAvailable=false;
+        double accountNumber;
+        ArrayList<Transaction> transactions=new ArrayList<>();
+
+        AccountLogic accountLogic = new AccountLogic(customerAccountNumbers);
+        accountNumber=accountLogic.getCustomerAccountNumber();
+
+        try(Connection connection = MySQLConnection.connect()){
+            if(accountNumber!=0 && connection !=null){
+                connection.setAutoCommit(false);
+                try(PreparedStatement ps= connection.prepareStatement(TransactionSQLQuery.SELECT_TRANSACTION_QUERY)){
+                    ps.setDouble(1,accountNumber);
+                    ResultSet rs = ps.executeQuery();
+                    while(rs.next()){
+                        isRecordAvailable=true;
+                        if(rs.getString("deposit_IFSC_Code")!=null){
+                            DepositTransaction depositRecord= new DepositTransaction(rs.getTimestamp("transaction_DateTime").toLocalDateTime(),rs.getDouble("transaction_Amount"),rs.getString("deposit_IFSC_Code"));
+                            transactions.add(depositRecord);
+                        }else if(rs.getString("withdraw_IFSC_Code")!=null){
+                            WithdrawTransaction withdrawRecord= new WithdrawTransaction(rs.getTimestamp("transaction_DateTime").toLocalDateTime(),rs.getDouble("transaction_Amount"),rs.getString("withdraw_IFSC_Code"));
+                            transactions.add(withdrawRecord);
+                        }else{
+                            TransferTransaction transferRecord = new TransferTransaction(rs.getTimestamp("transaction_DateTime").toLocalDateTime(),rs.getDouble("transaction_Amount"),rs.getDouble("beneficiary_Account_Number"),rs.getString("beneficiary_IFSC_Code"), TransferTransaction.TransactionType.valueOf(rs.getString("transaction_Type")));
+                            transactions.add(transferRecord);
+                        }
+                    }
+                }
+                if(isRecordAvailable) {
+                    connection.commit();
+                    displayAllTransaction(transactions);
+                }
+                else connection.rollback();
+            }
+        }catch(SQLException e){
+            System.out.println(e.getMessage());
+        }
+
+        return isRecordAvailable;
     }
     private boolean insertTransactionRecord(Connection connection,Transaction transaction){
         boolean isRecordInserted=false;

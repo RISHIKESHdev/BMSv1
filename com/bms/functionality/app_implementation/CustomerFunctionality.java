@@ -51,7 +51,8 @@ public class CustomerFunctionality extends CustomerEmployeeFunctionality impleme
 
     @Override
     public void viewAllTransaction() {
-
+        TransactionLogic transactionLogic = new TransactionLogic(loggedInCustomerAccountNumbers,loggedInUserInfo);
+        transactionLogic.viewAllTransaction();
     }
 
     @Override

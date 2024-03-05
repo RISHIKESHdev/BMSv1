@@ -4,7 +4,6 @@ import com.bms.Main;
 import com.bms.bank.Address;
 import com.bms.functionality.MySQLConnection;
 import com.bms.functionality.account.AccountLogic;
-import com.bms.functionality.account.AccountSQLQuery;
 import com.bms.functionality.branch.BranchLogic;
 import com.bms.functionality.navigate.NavigateLogic;
 import com.bms.people.*;
