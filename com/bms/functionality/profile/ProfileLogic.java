@@ -154,7 +154,7 @@ public class ProfileLogic implements ProfileInterface{
         employee = (Employee) getProfileInput(3,true);
 
         if(employee!=null && dataLogic.insertEmployee(employee)) {
-            System.out.println("Employee Id: "+ employee.getEmployeeId());
+            System.out.printf("Employee Id: %.0f\n", employee.getEmployeeId());
             System.out.println("Employee Record Inserted.");
         }else{
             System.out.println("Employee Record Insertion Failed.");
@@ -283,7 +283,7 @@ public class ProfileLogic implements ProfileInterface{
     private double getEmployeeId(){
         double employeeId = 0;
 
-        System.out.print("Enter Employee Id To Deactivate: ");employeeId=in.nextDouble();
+        System.out.print("Enter Employee Id: ");employeeId=in.nextDouble();
 
         return employeeId;
     }

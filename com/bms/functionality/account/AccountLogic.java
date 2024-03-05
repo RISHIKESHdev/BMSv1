@@ -79,7 +79,7 @@ public class AccountLogic implements AccountInterface{
         savingAccount = (SavingAccount) getAccountInfo(3);
 
         if(savingAccount!=null && dataLogic.insertSavingAccount(savingAccount)) {
-            System.out.println("Saving Account Number: "+savingAccount.getAccountNumber());
+            System.out.printf("Saving Account Number: %.0f\n", savingAccount.getAccountNumber());
             System.out.println("Saving Account Record Inserted.");
         }else{
             System.out.println("Saving Account Creation Failed.");

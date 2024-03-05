@@ -271,31 +271,31 @@ public class ProfileDataLogic {
         return isEmployeeProfileUpdated;
     }
     private String getUpdateUserQuery(User user){
-        String updateUserQuery=null;
+        String updateUserQuery="";
 
         if(user.getFirstName()!=null){
-            updateUserQuery +=" first_Name="+user.getFirstName();
+            updateUserQuery +=" first_Name='"+user.getFirstName() +"', ";
         }
         if(user.getMiddleName()!=null){
-            updateUserQuery +=" middle_Name="+user.getMiddleName();
+            updateUserQuery +=" middle_Name='"+user.getMiddleName() +"', ";
         }
         if(user.getLastName()!=null){
-            updateUserQuery +=" last_Name="+user.getLastName();
+            updateUserQuery +=" last_Name='"+user.getLastName() +"', ";
         }
         if(user.getGender()!=null){
-            updateUserQuery +=" gender="+user.getGender();
+            updateUserQuery +=" gender='"+user.getGender() +"', ";
         }
         if(user.getAge()!=0){
-            updateUserQuery +=" age="+user.getAge();
+            updateUserQuery +=" age="+user.getAge() +", ";
         }
         if(user.getMobileNumber()!=null){
-            updateUserQuery +=" mobile_Number="+user.getMobileNumber();
+            updateUserQuery +=" mobile_Number='"+user.getMobileNumber() +"', ";
         }
 
-        if(updateUserQuery!=null && user instanceof Customer){
+        if(updateUserQuery!=null && user instanceof Customer){updateUserQuery = updateUserQuery.substring(0, updateUserQuery.length() - 2);
             updateUserQuery = "UPDATE User JOIN Customer ON Customer.user_Id=User.Id SET" + updateUserQuery+ " WHERE Customer.CIF_Number=?";
         }
-        else if(updateUserQuery!=null && user instanceof Employee){
+        else if(updateUserQuery!=null && user instanceof Employee){updateUserQuery = updateUserQuery.substring(0, updateUserQuery.length() - 1);
             updateUserQuery = "UPDATE User JOIN Employee ON Employee.user_Id=User.Id SET" + updateUserQuery+ " WHERE Employee.Employee_Id=?";
         }else{
             updateUserQuery=null;
@@ -323,19 +323,19 @@ public class ProfileDataLogic {
         return updateCustomerQuery;
     }
     private String getUpdateEmployeeQuery(Employee employee){
-        String updateEmployeeQuery = null;
+        String updateEmployeeQuery = "";
 
         if(employee.getEmployeeDesignation()!=null){
-            updateEmployeeQuery +=" employee_Designation="+employee.getEmployeeDesignation();
+            updateEmployeeQuery +=" employee_Designation='"+employee.getEmployeeDesignation() +"', ";
         }
         if(employee.getEmployeeCTC()!=0){
-            updateEmployeeQuery +=" employee_CTC="+employee.getEmployeeCTC();
+            updateEmployeeQuery +=" employee_CTC="+employee.getEmployeeCTC() +", ";
         }
         if(employee.getYearOfExperience()!=0){
-            updateEmployeeQuery +=" year_Of_Experience="+employee.getYearOfExperience();
+            updateEmployeeQuery +=" year_Of_Experience="+employee.getYearOfExperience() +", ";
         }
 
-        if(updateEmployeeQuery!=null){
+        if(updateEmployeeQuery!=null){updateEmployeeQuery = updateEmployeeQuery.substring(0, updateEmployeeQuery.length() - 2);
             updateEmployeeQuery = "UPDATE Employee SET" + updateEmployeeQuery+ " WHERE Employee.Employee_Id=?";
         }
 
