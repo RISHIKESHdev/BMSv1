@@ -119,7 +119,7 @@ public class AccountLogic implements AccountInterface{
     public double getCustomerAccountNumber(){
         double accountNumber = 0;
 
-        if(!customerAccountNumbers.isEmpty()){
+        if(customerAccountNumbers!=null && !customerAccountNumbers.isEmpty()){
             for(Double customerAccountNumber: customerAccountNumbers){
                 System.out.println("Logged In Customer Account Number:-");
                 System.out.println(customerAccountNumber);
