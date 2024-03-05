@@ -1,55 +1,74 @@
-# Drop Table Bank
-# Drop Table Branch
-# Drop Table Address
-# Drop Table Geo_Location
-# Drop Table User
-# Drop Table Customer
-# Drop Table Employee
-# Drop Table Admin
-# Drop Table Account
-# Drop Table Current_Account
-# Drop Table Fixed_Deposit_Account
-# Drop Table Saving_Account
-# Drop Table Customer_Account_Map
-# Drop Table Nominee
-# Drop Table Employee_Branch_Map
-# Drop Table Loan
-# Drop Table Gold_Loan
-# Drop Table Home_Loan
-# Drop Table Card_MASTER
-# Drop Table CO_BRANDED_CREDIT_CARD_MASTER
-# Drop Table CREDIT_CARD_MASTER
-# Drop Table DEBIT_CARD_MASTER
-# Drop Table CARD
-# Drop Table CREDIT_CARD
-# Drop Table DEBIT_CARD
-# Drop Table CO_BRANDED_CREDIT_CARD
-# Drop Table Transaction
-# Drop Table Deposit_Transaction
-# Drop Table Withdraw_Transaction
-# Drop Table Transfer_Transaction
-# Drop Table Card_Transaction_Map
-# Drop Table Cheque
-# Drop Table Cash
+# Drop Table Admin;
+# Drop Table Bank;
+# Drop Table Branch;
+# Drop Table Address;
+# Drop Table Geo_Location;
+# Drop Table User;
+# Drop Table Customer;
+# Drop Table Employee; 
+# Drop Table Account;
+# Drop Table Current_Account;
+# Drop Table Fixed_Deposit_Account;
+# Drop Table Saving_Account;
+# Drop Table Customer_Account_Map;
+# Drop Table Nominee;
+# Drop Table Employee_Branch_Map;
+# Drop Table Loan;
+# Drop Table Gold_Loan;
+# Drop Table Home_Loan;
+# Drop Table Card_MASTER;
+# Drop Table CO_BRANDED_CREDIT_CARD_MASTER;
+# Drop Table CREDIT_CARD_MASTER;
+# Drop Table DEBIT_CARD_MASTER;
+# Drop Table CARD;
+# Drop Table CREDIT_CARD;
+# Drop Table DEBIT_CARD;
+# Drop Table CO_BRANDED_CREDIT_CARD;
+# Drop Table Transaction;
+# Drop Table Deposit_Transaction;
+# Drop Table Withdraw_Transaction;
+# Drop Table Transfer_Transaction;
+# Drop Table Card_Transaction_Map;
+# Drop Table Cheque;
+# Drop Table Cash;
 
-select * from Account;
-UPDATE Account SET available_Balance=3454,current_Balance=3453456 WHERE account_Number=34646586776534;
-select card_number from card where card_number=1000000000000000;
-select * from Saving_Account;
-select * from Customer_Account_Map;
-select * from employee;
-select * from Address;
-select * from Customer;# SELECT * FROM Account WHERE account_Number=2450000000000001;
-select * from branch;
-select * from Employee_Branch_Map;
-DELETE FROM Employee_Branch_Map WHERE employee_Id=10000000001;
-INSERT INTO Employee_Branch_Map(branch_Id,employee_Id) VALUE(1,10000000001);
-UPDATE Employee_Branch_Map SET branch_Id=1 WHERE employee_Id=10000000001;
-SELECT branch_Id,IFSC_Code,branch_Name FROM Branch WHERE branch_Id = 1;
-INSERT INTO branch values('2', '3', '245', '14', 'SBII000002', 'KRISP', '8767877687');
-select * from DEBIT_CARD;
-select COUNT(*) FROM Account JOIN Customer_Account_Map ON Account.account_Number=Customer_Account_Map.account_Number WHERE Customer_Account_Map.CIFNumber=? AND Account.branch_Id=?;
-UPDATE Account SET branch_Id=? WHERE Account.account_Number=?;
+# select * from Account;
+# select * from bank;
+# INSERT INTO BANK(bank_Identification_Number, bank_Name, bank_Code, bank_Type) VALUE ('245', 'State Bank Of International India.', 'SBII', 'Public Sector');
+# UPDATE Account SET available_Balance=3454,current_Balance=3453456 WHERE account_Number=34646586776534;
+# select card_number from card where card_number=1000000000000000;
+# select * from Saving_Account;
+# select * from Customer_Account_Map;
+# select * from employee;
+# select * from Address;
+# select * from Customer;# SELECT * FROM Account WHERE account_Number=2450000000000001;
+# select * from branch;
+# select * from Employee_Branch_Map;
+# DELETE FROM Employee_Branch_Map WHERE employee_Id=10000000001;
+# INSERT INTO Employee_Branch_Map(branch_Id,employee_Id) VALUE(1,10000000001);
+# UPDATE Employee_Branch_Map SET branch_Id=1 WHERE employee_Id=10000000001;
+# SELECT branch_Id,IFSC_Code,branch_Name FROM Branch WHERE branch_Id = 1;
+# INSERT INTO branch values('2', '3', '245', '14', 'SBII000002', 'KRISP', '8767877687');
+# select * from DEBIT_CARD;
+# select COUNT(*) FROM Account JOIN Customer_Account_Map ON Account.account_Number=Customer_Account_Map.account_Number WHERE Customer_Account_Map.CIFNumber=? AND Account.branch_Id=?;
+# UPDATE Account SET branch_Id=? WHERE Account.account_Number=?;
+# select * from transaction;
+# INSERT INTO Transaction(account_Number,transaction_DateTime,transaction_Amount) VALUE(2450000000000001,CURRENT_TIMESTAMP,1000);
+# INSERT INTO Deposit_Transaction(transaction_Id,deposit_IFSC_Code) VALUE(1,'depositIFSC');
+# INSERT INTO Withdraw_Transaction(transaction_Id,withdraw_IFSC_Code) VALUE(2,'withdrawIFSC');
+# INSERT INTO Transfer_Transaction(transaction_Id,transaction_Type,beneficiary_IFSC_Code,beneficiary_Account_Number) VALUE(3,'NEFT','BEN10',2450000000000002);
+# SELECT TRANSACTION.ID AS transactionID,transaction_DateTime,transaction_Amount,deposit_IFSC_Code,withdraw_IFSC_Code,transaction_Type,beneficiary_IFSC_Code,beneficiary_Account_Number FROM TRANSACTION LEFT JOIN Deposit_Transaction ON TRANSACTION.ID=Deposit_Transaction.transaction_Id LEFT JOIN Withdraw_Transaction ON TRANSACTION.ID=Withdraw_Transaction.transaction_Id LEFT JOIN Transfer_Transaction ON TRANSACTION.ID=Transfer_Transaction.transaction_Id WHERE TRANSACTION.account_Number=? ORDER BY TRANSACTION.transaction_DateTime DESC;
+# INSERT INTO User(address_Id,first_Name,middle_Name,last_Name,email_Id,gender,password,age,mobile_Number) VALUE(10,'Admin One','mn','ln','rootadmin@gmail.com','Male','admin','23','9867545654');
+# INSERT INTO Admin(user_Id,is_Active) VALUE(11,TRUE);
+# commit;
+# SELECT first_Name,middle_Name,last_Name,email_Id,gender,password,age,mobile_Number,address_Line_One,address_Line_Two,address_Line_Three,landmark,city,state,country,pinCode,is_Active FROM Address JOIN User JOIN Admin ON User.address_Id=Address.Address_Id AND User.Id=Admin.user_Id WHERE Admin.is_Active=True and User.email_Id='rootadmin@gmail.comBranchBank' AND User.password='admin';
+# select * from admin;
+# select * from user;
+# select * from Address JOIN User JOIN Admin ON User.address_Id=Address.Address_Id AND admin.user_Id=user.id WHERE Admin.is_Active=True and User.email_Id='rootadmin@gmail.com' AND User.password='admin';
+# SELECT first_Name,middle_Name,last_Name,email_Id,gender,password,age,mobile_Number,address_Line_One,address_Line_Two,address_Line_Three,landmark,city,state,country,pinCode,is_Active FROM Address JOIN User JOIN Admin ON User.address_Id=Address.Address_Id AND User.Id=Admin.user_Id WHERE Admin.is_Active=True and User.email_Id='rootadmin@gmail.com' AND User.password='root';
+# UPDATE Employee SET is_Active=False WHERE Employee.Employee_Id=?;
+# UPDATE User JOIN Employee ON Employee.user_Id=User.Id SET first_Name="fn" WHERE Employee.Employee_Id=3645645
+
 
 #Address
 Create Table Address(
@@ -107,18 +126,6 @@ age INTEGER(3),
 mobile_Number VARCHAR(20),
 FOREIGN KEY (address_Id) REFERENCES Address(Address_Id)
 );
-
-INSERT INTO User(address_Id,first_Name,middle_Name,last_Name,email_Id,gender,password,age,mobile_Number) VALUE(10,'Admin One','mn','ln','rootadmin@gmail.com','Male','admin','23','9867545654');
-INSERT INTO Admin(user_Id,is_Active) VALUE(11,TRUE);
-commit;
-
-SELECT first_Name,middle_Name,last_Name,email_Id,gender,password,age,mobile_Number,address_Line_One,address_Line_Two,address_Line_Three,landmark,city,state,country,pinCode,is_Active FROM Address JOIN User JOIN Admin ON User.address_Id=Address.Address_Id AND User.Id=Admin.user_Id WHERE Admin.is_Active=True and User.email_Id='rootadmin@gmail.comBranchBank' AND User.password='admin';
-select * from admin;
-select * from user;
-select * from Address JOIN User JOIN Admin ON User.address_Id=Address.Address_Id AND admin.user_Id=user.id WHERE Admin.is_Active=True and User.email_Id='rootadmin@gmail.com' AND User.password='admin';
-# SELECT first_Name,middle_Name,last_Name,email_Id,gender,password,age,mobile_Number,address_Line_One,address_Line_Two,address_Line_Three,landmark,city,state,country,pinCode,is_Active FROM Address JOIN User JOIN Admin ON User.address_Id=Address.Address_Id AND User.Id=Admin.user_Id WHERE Admin.is_Active=True and User.email_Id='rootadmin@gmail.com' AND User.password='root';
-# UPDATE Employee SET is_Active=False WHERE Employee.Employee_Id=?;
-# UPDATE User JOIN Employee ON Employee.user_Id=User.Id SET first_Name="fn" WHERE Employee.Employee_Id=3645645
 
 #Admin
 Create Table Admin(
