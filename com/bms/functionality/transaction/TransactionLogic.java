@@ -31,7 +31,7 @@ public class TransactionLogic implements TransactionInterface {
 
         TransactionDataLogic dataLogic = new TransactionDataLogic(customerAccountNumbers);
 
-        if(dataLogic.insertTransferRecord(transferTransaction)){
+        if(dataLogic.checkAndInsertTransactionRecord(transferTransaction)){
             System.out.println("Transfer Transaction Id: "+transferTransaction.getTransactionId());
             System.out.println("Transfer Transaction Record Inserted.");
             isTransferRegistered=true;
@@ -46,7 +46,7 @@ public class TransactionLogic implements TransactionInterface {
 
         TransactionDataLogic dataLogic = new TransactionDataLogic(customerAccountNumbers);
 
-        if(dataLogic.insertWithdrawalRecord(withdrawalTransaction)){
+        if(dataLogic.checkAndInsertTransactionRecord(withdrawalTransaction)){
             System.out.println("Withdraw Transaction Id: "+withdrawalTransaction.getTransactionId());
             System.out.println("Withdraw Transaction Record Inserted.");
             isWithdrawalRegistered=true;
@@ -68,7 +68,7 @@ public class TransactionLogic implements TransactionInterface {
 
         TransactionDataLogic dataLogic = new TransactionDataLogic(customerAccountNumbers);
 
-        if(dataLogic.insertDepositRecord(depositTransaction)){
+        if(dataLogic.checkAndInsertTransactionRecord(depositTransaction)){
             System.out.println("Deposit Transaction Id: "+depositTransaction.getTransactionId());
             System.out.println("Deposit Transaction Record Inserted.");
             isDepositRegistered=true;

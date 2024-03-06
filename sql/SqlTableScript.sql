@@ -32,7 +32,10 @@
 # Drop Table Cheque;
 # Drop Table Cash;
 
-# select * from Account;
+SELECT @@SESSION.transaction_isolation;
+
+# select * from Account;   2450000000000001
+# select * from user;      2450000000000001
 # select * from bank;
 # INSERT INTO BANK(bank_Identification_Number, bank_Name, bank_Code, bank_Type) VALUE ('245', 'State Bank Of International India.', 'SBII', 'Public Sector');
 # UPDATE Account SET available_Balance=3454,current_Balance=3453456 WHERE account_Number=34646586776534;
@@ -41,8 +44,10 @@
 # select * from Customer_Account_Map;
 # select * from employee;
 # select * from Address;
+# select * from card;  1000000000000000
 # select * from Customer;# SELECT * FROM Account WHERE account_Number=2450000000000001;
 # select * from branch;
+# SELECT card_Number,valid_from,expiry_date,payment_Gateway,Credit_Card.interest_free_credit_days As freeCreditDays ,Credit_Card.rate_of_interest roi,merchant_name,merchant_offer_percentage,Co_Branded_Credit_Card.interest_free_credit_days AS coFreeCreditDay,Co_Branded_Credit_Card.rate_of_interest AS coRoi,withdrawal_limit FROM Card LEFT JOIN Credit_Card ON Credit_Card.card_Id=card_Number LEFT JOIN Co_Branded_Credit_Card ON Co_Branded_Credit_Card.card_Id=card_Number LEFT JOIN Debit_Card ON Debit_Card.card_Id=card_Number WHERE is_active=TRUE AND account_Number=2450000000000000 ORDER BY card_Number;
 # select * from Employee_Branch_Map;
 # DELETE FROM Employee_Branch_Map WHERE employee_Id=10000000001;
 # INSERT INTO Employee_Branch_Map(branch_Id,employee_Id) VALUE(1,10000000001);
@@ -58,8 +63,9 @@
 # INSERT INTO Withdraw_Transaction(transaction_Id,withdraw_IFSC_Code) VALUE(2,'withdrawIFSC');
 # INSERT INTO Transfer_Transaction(transaction_Id,transaction_Type,beneficiary_IFSC_Code,beneficiary_Account_Number) VALUE(3,'NEFT','BEN10',2450000000000002);
 # SELECT TRANSACTION.ID AS transactionID,transaction_DateTime,transaction_Amount,deposit_IFSC_Code,withdraw_IFSC_Code,transaction_Type,beneficiary_IFSC_Code,beneficiary_Account_Number FROM TRANSACTION LEFT JOIN Deposit_Transaction ON TRANSACTION.ID=Deposit_Transaction.transaction_Id LEFT JOIN Withdraw_Transaction ON TRANSACTION.ID=Withdraw_Transaction.transaction_Id LEFT JOIN Transfer_Transaction ON TRANSACTION.ID=Transfer_Transaction.transaction_Id WHERE TRANSACTION.account_Number=? ORDER BY TRANSACTION.transaction_DateTime DESC;
-# INSERT INTO User(address_Id,first_Name,middle_Name,last_Name,email_Id,gender,password,age,mobile_Number) VALUE(10,'Admin One','mn','ln','rootadmin@gmail.com','Male','admin','23','9867545654');
-# INSERT INTO Admin(user_Id,is_Active) VALUE(11,TRUE);
+# INSERT INTO ADDRESS(address_line_one,address_line_two,address_line_three,landmark,city,state,country,pincode) value('sdgdfg','sdfsd','dsfgdg','sdfsdgf','sdgsfd','dsgsd','sdgfsfd',600101);
+# INSERT INTO User(address_Id,first_Name,middle_Name,last_Name,email_Id,gender,password,age,mobile_Number) VALUE(1,'Admin One','mn','ln','rootadmin@gmail.com','Male','admin','23','9867545654');
+# INSERT INTO Admin(user_Id,is_Active) VALUE(2,TRUE);
 # commit;
 # SELECT first_Name,middle_Name,last_Name,email_Id,gender,password,age,mobile_Number,address_Line_One,address_Line_Two,address_Line_Three,landmark,city,state,country,pinCode,is_Active FROM Address JOIN User JOIN Admin ON User.address_Id=Address.Address_Id AND User.Id=Admin.user_Id WHERE Admin.is_Active=True and User.email_Id='rootadmin@gmail.comBranchBank' AND User.password='admin';
 # select * from admin;
@@ -342,6 +348,8 @@ Id Integer AUTO_INCREMENT PRIMARY KEY,
 card_Id Double,
 merchant_Name VARCHAR(100),
 merchant_Offer_Percentage DOUBLE(5,2),
+interest_Free_Credit_Days INTEGER(100),
+rate_Of_Interest DOUBLE(5,2),
 UNIQUE KEY (card_Id),
 FOREIGN KEY (card_Id) REFERENCES Card(card_Number) ON DELETE CASCADE
 );
@@ -441,3 +449,31 @@ commit;
 # SELECT CIF_Number,USER.Id,first_Name,middle_Name,last_Name,email_Id,gender,age,mobile_Number,Address_Id,address_Line_One,address_Line_Two,address_Line_Three,landmark,city,state,country,pinCode,CKYC_Verification_Document,CKYC_Verification_Id,PAN_Number FROM CUSTOMER JOIN USER JOIN ADDRESS ON USER.Id = CUSTOMER.user_Id and ADDRESS.id=USER.address_id;
 # SELECT CIF_Number,USER.Id,first_Name,middle_Name,last_Name,email_Id,gender,age,mobile_Number,password,Address_Id,address_Line_One,address_Line_Two,address_Line_Three,landmark,city,state,country,pinCode,CKYC_Verification_Document,CKYC_Verification_Id,PAN_Number FROM CUSTOMER JOIN USER JOIN ADDRESS ON USER.Id = CUSTOMER.user_Id and ADDRESS.id=USER.address_id WHERE CUSTOMER.CIF_Number=6774;
 # INSERT INTO Cash(transaction_Id,cash_Amount) VALUE(?,?);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+select COUNT(*) FROM Account JOIN Customer_Account_Map ON Account.account_Number=Customer_Account_Map.account_Number 
+WHERE Customer_Account_Map.CIFNumber=20000000000 AND Account.branch_Id=3 AND Account.account_Number=2450000000000000
+
+
+
+
+# UPDATE User JOIN Employee ON Employee.user_Id=User.Id SET first_Name=employeeThreeUpdate ,middle_Name=sdgdf ,last_Name=sdgsg ,gender=male ,age=45 WHERE Employee.Employee_Id=10000000002;
+# UPDATE User JOIN Employee ON Employee.user_Id=User.Id SET first_Name='employeeThreeUpdate',  middle_Name='sdgdsfgd',  last_Name='sdfsdf',  gender='male',  age=45 WHERE Employee.Employee_Id=?;

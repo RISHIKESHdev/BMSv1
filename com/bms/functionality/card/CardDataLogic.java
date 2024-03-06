@@ -3,11 +3,6 @@ package com.bms.functionality.card;
 import com.bms.Main;
 import com.bms.functionality.MySQLConnection;
 import com.bms.functionality.account.AccountLogic;
-import com.bms.functionality.transaction.TransactionSQLQuery;
-import com.bms.transaction.DepositTransaction;
-import com.bms.transaction.Transaction;
-import com.bms.transaction.TransferTransaction;
-import com.bms.transaction.WithdrawTransaction;
 import com.bms.transaction.card.Card;
 import com.bms.transaction.card.CoBrandedCreditCard;
 import com.bms.transaction.card.CreditCard;
@@ -84,6 +79,7 @@ public class CardDataLogic {
 
         return isCardInserted;
     }
+
     boolean displayActiveCard(Connection connection,double accountNumber){
         boolean isRecordAvailable=false;
 

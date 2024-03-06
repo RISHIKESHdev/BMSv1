@@ -77,7 +77,7 @@ public class TransactionDataLogic {
         AccountLogic accountLogic = new AccountLogic(customerAccountNumbers);
         accountNumber=accountLogic.getAccountNumberOnUserRequest(connection);
 
-        if(accountNumber>0 && updateAmount(connection,transaction,accountNumber)){
+        if(accountNumber>0 && checkAndUpdateAmount(connection,transaction,accountNumber)){
             try(PreparedStatement ps = connection.prepareStatement(TransactionSQLQuery.INSERT_TRANSACTION_QUERY, Statement.RETURN_GENERATED_KEYS)){
                 ps.setDouble(1,accountNumber);
                 ps.setDouble(2,transaction.getTransactionAmount());
@@ -96,50 +96,174 @@ public class TransactionDataLogic {
 
         return isRecordInserted;
     }
-    boolean updateAmount(Connection connection,Transaction transaction,double accountNumber){
-        boolean isAmountUpdated=false,isValid=false;
+    private boolean validateCurrentTran(double transactionAmount,double availableBalance,double currentBalance,double overDraftLimit){
+        boolean isValid=true;
 
-        try(CallableStatement cs = connection.prepareCall(TransactionSQLQuery.CHECK_VALID_ACCOUNT)){
-            cs.registerOutParameter(4, Types.BOOLEAN);
+        return isValid;
+    }
+    private boolean validateFDTran(double transactionAmount,double availableBalance,LocalDateTime matureDateTime){
+        boolean isValid=true;
 
-            cs.setDouble(1,accountNumber);
-            if(transaction instanceof WithdrawTransaction){
-                cs.setString(2,"WITHDRAW");
-            }else if(transaction instanceof DepositTransaction){
-                cs.setString(2,"DEPOSIT");
-            }else{
-                cs.setString(2,"TRANSFER");
+        return isValid;
+    }
+    private boolean validateSaveTran(double transactionAmount,double availableBalance,double minimumAccountBalance,double withdrawalLimit){
+        boolean isValid=true;
+
+        return isValid;
+    }
+    double validateTransactionAndGetAvailableBalance(Connection connection, Transaction transaction, double accountNumber, String accountType) {
+        boolean isValid=false;
+        double availableBalance = 0,currentBalance,overDraftLimit,minimumAccountBalance,withdrawalLimit;
+        LocalDateTime matureDateTime;
+        String sqlQuery="";
+
+        if(accountType.compareTo("CURRENT")==0){
+            sqlQuery=TransactionSQLQuery.GET_CURRENT_ACCOUNT_DETAIL;
+        }else if(accountType.compareTo("FD")==0){
+            sqlQuery=TransactionSQLQuery.GET_FD_ACCOUNT_DETAIL;
+        }else{
+            sqlQuery=TransactionSQLQuery.GET_SAVE_ACCOUNT_DETAIL;
+        }
+
+        try(PreparedStatement ps = connection.prepareStatement(sqlQuery)){
+            ps.setDouble(1,accountNumber);
+            ResultSet rs=ps.executeQuery();
+            while(rs.next()){
+                availableBalance=rs.getDouble("available_Balance");
+                if(accountType.compareToIgnoreCase("CURRENT")==0){
+                    currentBalance=rs.getDouble("current_Balance");
+                    overDraftLimit=rs.getDouble("over_Draft_Limit");
+                    isValid=validateCurrentTran(transaction.getTransactionAmount(), availableBalance,currentBalance,overDraftLimit);
+                }else if(accountType.compareTo("FD")==0){
+                    matureDateTime=rs.getTimestamp("mature_DateTime").toLocalDateTime();
+                    isValid=validateFDTran(transaction.getTransactionAmount(), availableBalance,matureDateTime);
+                }else{
+                    minimumAccountBalance=rs.getDouble("minimum_Account_Balance");
+                    withdrawalLimit=rs.getDouble("withdrawal_Limit");
+                    isValid=validateSaveTran(transaction.getTransactionAmount(), availableBalance,minimumAccountBalance,withdrawalLimit);
+                }
             }
-            cs.setDouble(3,transaction.getTransactionAmount());
-            cs.execute();
-
-            isValid=cs.getBoolean("valid_Account");
         }catch(SQLException e){
             System.out.println(e.getMessage());
         }
-        if(isValid){
-            try(CallableStatement cs = connection.prepareCall(TransactionSQLQuery.UPDATE_AMOUNT_TRANSACTION_QUERY)){
-                cs.registerOutParameter(5, Types.BOOLEAN);
 
-                cs.setDouble(1,accountNumber);
-                if(transaction instanceof WithdrawTransaction){
-                    cs.setDouble(2,0);
-                    cs.setString(3,"WITHDRAW");
-                }else if(transaction instanceof DepositTransaction){
-                    cs.setDouble(2,0);
-                    cs.setString(3,"DEPOSIT");
-                }else{
-                    cs.setDouble(2,((TransferTransaction)transaction).getBeneficiaryAccountNumber());
-                    cs.setString(3,"TRANSFER");
+        if(!isValid) availableBalance=0;
+
+        return availableBalance;
+    }
+    double getBeneficiaryAccountBalance(Connection connection,double accountNumber){
+        double beneficiaryBalance = 0;
+
+        try(PreparedStatement ps = connection.prepareStatement(TransactionSQLQuery.SELECT_BENEFICIARY_BALANCE)){
+            ps.setDouble(1,accountNumber);
+            ResultSet rs= ps.executeQuery();
+
+            while(rs.next()){
+                beneficiaryBalance=rs.getDouble("available_Balance");
+            }
+        }catch(SQLException e){
+            System.out.println(e.getMessage());
+        }
+
+        return beneficiaryBalance;
+    }
+    synchronized boolean checkAndUpdateAmount(Connection connection, Transaction transaction, double accountNumber){
+        boolean isAmountUpdated=false,isTransactionValid=false;
+        double updatedValue,availableBalance,beneficiaryUpdatedValue = 0;
+        String accountType="";
+
+        try(CallableStatement cs = connection.prepareCall(TransactionSQLQuery.GET_ACCOUNT_TYPE)){
+            cs.registerOutParameter(2, Types.VARCHAR);
+            cs.setDouble(1,accountNumber);
+            cs.execute();
+
+            accountType=cs.getString("accountType").toUpperCase();
+        }catch(SQLException e){
+            System.out.println(e.getMessage());
+        }
+
+        availableBalance= validateTransactionAndGetAvailableBalance(connection,transaction,accountNumber,accountType);
+
+        if(availableBalance!=0){
+            if(transaction instanceof WithdrawTransaction){
+                updatedValue=  availableBalance-transaction.getTransactionAmount();
+            } else if (transaction instanceof DepositTransaction) {
+                updatedValue=  availableBalance+transaction.getTransactionAmount();
+            }else{
+                updatedValue=  availableBalance-transaction.getTransactionAmount();
+                beneficiaryUpdatedValue=getBeneficiaryAccountBalance(connection,((TransferTransaction)transaction).getBeneficiaryAccountNumber())+transaction.getTransactionAmount();
+
+                try(PreparedStatement ps = connection.prepareStatement(TransactionSQLQuery.UPDATE_ACCOUNT_TRAN_QUERY)){
+                    ps.setDouble(1,updatedValue);
+                    ps.setDouble(2,updatedValue);
+                    ps.setDouble(3,accountNumber);
+                    ps.addBatch();
+                    ps.setDouble(1,beneficiaryUpdatedValue);
+                    ps.setDouble(2,beneficiaryUpdatedValue);
+                    ps.setDouble(3,((TransferTransaction)transaction).getBeneficiaryAccountNumber());
+                    ps.addBatch();
+
+                    int[] rs=ps.executeBatch();
+                    isAmountUpdated=(rs[0]+rs[1])>0;
+                }catch(SQLException e){
+                    System.out.println(e.getMessage());
                 }
-                cs.setDouble(4,transaction.getTransactionAmount());
-                cs.execute();
+            }
 
-                isAmountUpdated=cs.getBoolean("isTransactionCompleted");
-            }catch(SQLException e){
-                System.out.println(e.getMessage());
+            if(transaction instanceof WithdrawTransaction || transaction instanceof DepositTransaction){
+                try(PreparedStatement ps = connection.prepareStatement(TransactionSQLQuery.UPDATE_ACCOUNT_TRAN_QUERY)){
+                    ps.setDouble(1,updatedValue);
+                    ps.setDouble(2,accountNumber);
+
+                    int rs=ps.executeUpdate();
+                    isAmountUpdated=rs>0;
+                }catch(SQLException e){
+                    System.out.println(e.getMessage());
+                }
             }
         }
+
+//        try(CallableStatement cs = connection.prepareCall(TransactionSQLQuery.CHECK_VALID_ACCOUNT)){
+//            cs.registerOutParameter(4, Types.BOOLEAN);
+//
+//            cs.setDouble(1,accountNumber);
+//            if(transaction instanceof WithdrawTransaction){
+//                cs.setString(2,"WITHDRAW");
+//            }else if(transaction instanceof DepositTransaction){
+//                cs.setString(2,"DEPOSIT");
+//            }else{
+//                cs.setString(2,"TRANSFER");
+//            }
+//            cs.setDouble(3,transaction.getTransactionAmount());
+//            cs.execute();
+//
+//            isValid=cs.getBoolean("valid_Account");
+//        }catch(SQLException e){
+//            System.out.println(e.getMessage());
+//        }
+//        if(isValid){
+//            try(CallableStatement cs = connection.prepareCall(TransactionSQLQuery.UPDATE_AMOUNT_TRANSACTION_QUERY)){
+//                cs.registerOutParameter(5, Types.BOOLEAN);
+//
+//                cs.setDouble(1,accountNumber);
+//                if(transaction instanceof WithdrawTransaction){
+//                    cs.setDouble(2,0);
+//                    cs.setString(3,"WITHDRAW");
+//                }else if(transaction instanceof DepositTransaction){
+//                    cs.setDouble(2,0);
+//                    cs.setString(3,"DEPOSIT");
+//                }else{
+//                    cs.setDouble(2,((TransferTransaction)transaction).getBeneficiaryAccountNumber());
+//                    cs.setString(3,"TRANSFER");
+//                }
+//                cs.setDouble(4,transaction.getTransactionAmount());
+//                cs.execute();
+//
+//                isAmountUpdated=cs.getBoolean("isTransactionCompleted");
+//            }catch(SQLException e){
+//                System.out.println(e.getMessage());
+//            }
+//        }
 
         return isAmountUpdated;
     }
@@ -169,6 +293,18 @@ public class TransactionDataLogic {
             System.out.println(e.getMessage());
         }
 
+        return isRecordInserted;
+    }
+    boolean checkAndInsertTransactionRecord(Transaction transaction){
+        boolean isRecordInserted;
+
+        if(transaction instanceof DepositTransaction){
+            isRecordInserted=insertDepositRecord((DepositTransaction) transaction);
+        }else if(transaction instanceof WithdrawTransaction){
+            isRecordInserted=insertWithdrawalRecord((WithdrawTransaction) transaction);
+        }else{
+            isRecordInserted=insertTransferRecord((TransferTransaction) transaction);
+        }
         return isRecordInserted;
     }
     boolean insertDepositRecord(DepositTransaction depositTransaction){
