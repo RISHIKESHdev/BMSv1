@@ -2,6 +2,7 @@ package com.bms.functionality.app_implementation;
 
 import com.bms.functionality.account.AccountLogic;
 import com.bms.functionality.app_interface.CustomerInterface;
+import com.bms.functionality.card.CardLogics;
 import com.bms.functionality.profile.ProfileLogic;
 import com.bms.functionality.transaction.TransactionLogic;
 import com.bms.people.User;
@@ -57,7 +58,10 @@ public class CustomerFunctionality extends CustomerEmployeeFunctionality impleme
         TransactionLogic transactionLogic = new TransactionLogic(loggedInCustomerAccountNumbers,loggedInUserInfo);
         transactionLogic.viewAllTransaction();
     }
-
+    public void viewAllActiveCardDetail(){
+        CardLogics cardLogic = new CardLogics(loggedInCustomerAccountNumbers);
+        cardLogic.viewAllActiveLiveCardDetail();
+    }
     @Override
     public void addAccount() {
         int accountCode;

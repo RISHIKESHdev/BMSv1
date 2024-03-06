@@ -10,7 +10,10 @@ public class DebitCard extends Card{
         super(cardName, inceptionDate, isActive, paymentGateway);
         this.withdrawalLimit = withdrawalLimit;
     }
-
+    public DebitCard(double cardNumber,LocalDateTime validFromDate,LocalDateTime expiryDate,String paymentGateway,double withdrawalLimit){
+        super(cardNumber,validFromDate,expiryDate,paymentGateway);
+        this.withdrawalLimit=withdrawalLimit;
+    }
     public double getWithdrawalLimit() {
         return withdrawalLimit;
     }

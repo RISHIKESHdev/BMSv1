@@ -21,6 +21,12 @@ public class CardLogics implements CardInterface{
         this.customerAccountNumbers=customerAccountNumbers;
     }
 
+    public void viewAllActiveLiveCardDetail(){
+        CardDataLogic dataLogic = new CardDataLogic(customerAccountNumbers);
+        if(!dataLogic.selectActiveLiveCard()){
+            System.out.println("No record Found.");
+        }
+    }
     public boolean registerCard(){
         Card card;
         int cardCode;

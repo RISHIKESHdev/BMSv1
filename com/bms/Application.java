@@ -41,6 +41,7 @@ public class Application{
                     System.out.println(++optionIndex + ". Deposit Amount.");
                     System.out.println(++optionIndex + ". Withdraw Amount.");
                     System.out.println(++optionIndex + ". View All Transaction.");
+                    System.out.println(++optionIndex + ". View All Active Cards.");
                 }
                 if(loggedInUserInfo instanceof Employee){
                     System.out.println(++optionIndex + ". Create Customer Account.");
@@ -226,6 +227,11 @@ public class Application{
                                 break;
                             }
                             case 13:{
+                                CustomerFunctionality customer = new CustomerFunctionality(loggedInCustomerAccountNumbers,loggedInUserInfo);
+                                customer.viewAllActiveCardDetail();
+                                break;
+                            }
+                            case 14:{
                                 CustomerFunctionality customer = new CustomerFunctionality(loggedInUserInfo);
                                 if(customer.signOut()){
                                     loggedInUserInfo=null;
@@ -235,7 +241,7 @@ public class Application{
                                 }
                                 break;
                             }
-                            case 14: {
+                            case 15: {
                                 loggedInUserInfo =null;
                                 loggedInCustomerAccountNumbers =new ArrayList<>();
                                 break applicationWhile;

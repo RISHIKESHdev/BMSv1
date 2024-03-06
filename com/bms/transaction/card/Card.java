@@ -25,6 +25,12 @@ public abstract class Card implements PaymentMode {
         this.isActive = isActive;
         this.paymentGateway = paymentGateway;
     }
+    public Card(double cardNumber,LocalDateTime validFromDate,LocalDateTime expiryDate,String paymentGateway){
+        this.cardNumber=cardNumber;
+        this.validFromDate=validFromDate;
+        this.expiryDate=expiryDate;
+        this.paymentGateway=paymentGateway;
+    }
 
     public double getCardNumber() {
         return cardNumber;

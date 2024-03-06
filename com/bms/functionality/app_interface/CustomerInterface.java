@@ -7,4 +7,5 @@ public interface CustomerInterface extends CustomerEmployeeInterface{
     public void withdrawAmount();
     public void depositAmount();
     public void viewAllTransaction();
+    public void viewAllActiveCardDetail();
 }

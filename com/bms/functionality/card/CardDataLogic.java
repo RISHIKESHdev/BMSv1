@@ -3,6 +3,11 @@ package com.bms.functionality.card;
 import com.bms.Main;
 import com.bms.functionality.MySQLConnection;
 import com.bms.functionality.account.AccountLogic;
+import com.bms.functionality.transaction.TransactionSQLQuery;
+import com.bms.transaction.DepositTransaction;
+import com.bms.transaction.Transaction;
+import com.bms.transaction.TransferTransaction;
+import com.bms.transaction.WithdrawTransaction;
 import com.bms.transaction.card.Card;
 import com.bms.transaction.card.CoBrandedCreditCard;
 import com.bms.transaction.card.CreditCard;
@@ -18,6 +23,57 @@ public class CardDataLogic {
     }
     public CardDataLogic(ArrayList<Double> customerAccountNumbers){
         this.customerAccountNumbers=customerAccountNumbers;
+    }
+    boolean selectActiveLiveCard(){
+        boolean isRecordAvailable=false;
+        double accountNumber;
+        ArrayList<Card> cardList=new ArrayList<>();
+
+        AccountLogic accountLogic = new AccountLogic(customerAccountNumbers);
+        accountNumber=accountLogic.getCustomerAccountNumber();
+
+        try(Connection connection = MySQLConnection.connect()){
+            if(accountNumber!=0 && connection !=null){
+                connection.setAutoCommit(false);
+                try(PreparedStatement ps= connection.prepareStatement(CardSQLQuery.SELECT_ACTIVE_LIVE_CARD_QUERY)){
+                    ps.setDouble(1,accountNumber);
+                    ResultSet rs = ps.executeQuery();
+                    while(rs.next()){
+                        isRecordAvailable=true;
+                        if(rs.getString("freeCreditDays")!=null){
+                            CreditCard creditCard= new CreditCard(rs.getDouble("card_Number"),rs.getTimestamp("valid_from").toLocalDateTime(),rs.getTimestamp("expiry_date").toLocalDateTime(),rs.getString("payment_Gateway"),rs.getInt("freeCreditDays"),rs.getDouble("roi"));
+                            cardList.add(creditCard);
+                        }else if(rs.getString("merchant_name")!=null){
+                            CoBrandedCreditCard coBrandedCreditCard= new CoBrandedCreditCard(rs.getDouble("card_Number"),rs.getTimestamp("valid_from").toLocalDateTime(),rs.getTimestamp("expiry_date").toLocalDateTime(),rs.getString("payment_Gateway"),rs.getInt("coFreeCreditDay"),rs.getDouble("coRoi"),rs.getString("merchant_name"),rs.getDouble("merchant_offer_percentage"));
+                            cardList.add(coBrandedCreditCard);
+                        }else{
+                            DebitCard debitCard = new DebitCard(rs.getDouble("card_Number"),rs.getTimestamp("valid_from").toLocalDateTime(),rs.getTimestamp("expiry_date").toLocalDateTime(),rs.getString("payment_Gateway"),rs.getDouble("withdrawal_limit"));
+                            cardList.add(debitCard);
+                        }
+                    }
+                }
+                if(isRecordAvailable) {
+                    connection.commit();
+                    displayAllActiveLiveCards(cardList);
+                }
+                else connection.rollback();
+            }
+        }catch(SQLException e){
+            System.out.println(e.getMessage());
+        }
+
+        return isRecordAvailable;
+    }
+    private void displayAllActiveLiveCards(ArrayList<Card> cardList){
+        for(Card card : cardList){
+            if(card instanceof  DebitCard){
+                System.out.printf("Card Numer: %.0f Valid From: " + card.getValidFromDate().toString() + " Expiry Date: " + card.getExpiryDate().toString() +" Payment GateWay: "+card.getPaymentGateway() + " Withdrawal Limit: " + ((DebitCard)card).getWithdrawalLimit() + "\n",card.getCardNumber());
+            }else if(card instanceof CoBrandedCreditCard){
+                System.out.printf("Card Numer: %.0f Valid From: " + card.getValidFromDate().toString() + " Expiry Date: " + card.getExpiryDate().toString() +" Payment GateWay: "+card.getPaymentGateway() + " Merchant Name: " + ((CoBrandedCreditCard)card).getMerchantName() + " Merchant Offer Percentage: " + ((CoBrandedCreditCard)card).getMerchantOfferPercentage() + " Interest Free Credit Days: " + ((CoBrandedCreditCard)card).getInterestFreeCreditDays() + " Rate Of Interest: " + ((CoBrandedCreditCard)card).getRateOfInterest() + "\n",card.getCardNumber());
+            }else{
+                System.out.printf("Card Numer: %.0f Valid From: " + card.getValidFromDate().toString() + " Expiry Date: " + card.getExpiryDate().toString() +" Payment GateWay: "+card.getPaymentGateway() + " Interest Free Credit Days: " + ((CreditCard)card).getInterestFreeCreditDays() + " Rate Of Interest: " + ((CreditCard)card).getRateOfInterest() + "\n",card.getCardNumber());
+            }
+        }
     }
     boolean registerCardRecord(Card card){
         boolean isCardInserted;
@@ -200,6 +256,8 @@ public class CardDataLogic {
                         ps.setDouble(1,coBrandCreditCard.getCardNumber());
                         ps.setString(2,coBrandCreditCard.getMerchantName());
                         ps.setDouble(3,coBrandCreditCard.getMerchantOfferPercentage());
+                        ps.setInt(4,coBrandCreditCard.getInterestFreeCreditDays());
+                        ps.setDouble(5,coBrandCreditCard.getRateOfInterest());
                         int rs = ps.executeUpdate();
                         isCoBrandCreditCardInserted = rs>0;
                     }

@@ -27,7 +27,7 @@ public class TransferTransaction extends Transaction{
         System.out.println("Trsaction Type:- ");
         System.out.println("1. NEFT");
         System.out.println("2. IMPS");
-        System.out.println("Select A Transaction Type From Above: ");transactionCode=in.nextInt();
+        System.out.print("Select A Transaction Type From Above: ");transactionCode=in.nextInt();
 
         return (transactionCode==1)?(TransactionType.NEFT):(TransactionType.IMPS);
     }

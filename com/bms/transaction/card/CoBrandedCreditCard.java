@@ -12,7 +12,11 @@ public class CoBrandedCreditCard extends CreditCard{
         this.merchantName = merchantName;
         this.merchantOfferPercentage = merchantOfferPercentage;
     }
-
+    public CoBrandedCreditCard(double cardNumber,LocalDateTime validFromDate,LocalDateTime expiryDate,String paymentGateway,int interestFreeCreditDays,double rateOfInterest,String merchantName,double merchantOfferPercentage){
+        super(cardNumber,validFromDate,expiryDate,paymentGateway,interestFreeCreditDays,rateOfInterest);
+        this.merchantName=merchantName;
+        this.merchantOfferPercentage=merchantOfferPercentage;
+    }
     public String getMerchantName() {
         return merchantName;
     }

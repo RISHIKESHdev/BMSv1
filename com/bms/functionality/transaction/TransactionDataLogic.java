@@ -25,7 +25,7 @@ public class TransactionDataLogic {
             } else if (transaction instanceof WithdrawTransaction) {
                 System.out.println("Transaction Date: " + transaction.getTransactionDateTime().format(Main.dateTimeFormat) + " Transaction Amount: " + transaction.getTransactionAmount() + " Withdraw IFSC Code: " + ((WithdrawTransaction) transaction).getWithdrawalIFSCCode());
             }else{
-                System.out.println("Transaction Date: " + transaction.getTransactionDateTime().format(Main.dateTimeFormat) + " Transaction Amount: " + transaction.getTransactionAmount() + " Beneficiary Account Number: " + ((TransferTransaction) transaction).getBeneficiaryAccountNumber() +" Beneficiary IFSC Code: "+ ((TransferTransaction) transaction).getBeneficiaryIFSCCode()+ " Transaction Type: " + ((TransferTransaction) transaction).getTransactionType().toString());
+                System.out.printf("Transaction Date: " + transaction.getTransactionDateTime().format(Main.dateTimeFormat) + " Transaction Amount: " + transaction.getTransactionAmount() + " Beneficiary Account Number: %.0f" +" Beneficiary IFSC Code: "+ ((TransferTransaction) transaction).getBeneficiaryIFSCCode()+ " Transaction Type: " + ((TransferTransaction) transaction).getTransactionType().toString()+"\n",((TransferTransaction) transaction).getBeneficiaryAccountNumber());
             }
         }
     }
