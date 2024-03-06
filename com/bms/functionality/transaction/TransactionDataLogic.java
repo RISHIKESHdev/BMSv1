@@ -179,9 +179,9 @@ public class TransactionDataLogic {
 
         return beneficiaryBalance;
     }
-    synchronized boolean checkAndUpdateAmount(Connection connection, Transaction transaction, double accountNumber){
-        boolean isAmountUpdated=false,isTransactionValid=false;
-        double updatedValue,availableBalance,beneficiaryUpdatedValue = 0;
+    boolean checkAndUpdateAmount(Connection connection, Transaction transaction, double accountNumber){
+        boolean isAmountUpdated=false;
+        double availableBalance;
         String accountType="";
 
         try(CallableStatement cs = connection.prepareCall(TransactionSQLQuery.GET_ACCOUNT_TYPE)){
@@ -197,41 +197,66 @@ public class TransactionDataLogic {
         availableBalance= validateTransactionAndGetAvailableBalance(connection,transaction,accountNumber,accountType);
 
         if(availableBalance!=0){
-            if(transaction instanceof WithdrawTransaction){
-                updatedValue=  availableBalance-transaction.getTransactionAmount();
-            } else if (transaction instanceof DepositTransaction) {
-                updatedValue=  availableBalance+transaction.getTransactionAmount();
-            }else{
-                updatedValue=  availableBalance-transaction.getTransactionAmount();
-                beneficiaryUpdatedValue=getBeneficiaryAccountBalance(connection,((TransferTransaction)transaction).getBeneficiaryAccountNumber())+transaction.getTransactionAmount();
-
-                try(PreparedStatement ps = connection.prepareStatement(TransactionSQLQuery.UPDATE_ACCOUNT_TRAN_QUERY)){
-                    ps.setDouble(1,updatedValue);
-                    ps.setDouble(2,updatedValue);
+            if(transaction instanceof WithdrawTransaction || transaction instanceof TransferTransaction){
+                //updatedValue=  availableBalance-transaction.getTransactionAmount();
+                try(PreparedStatement ps = connection.prepareStatement(TransactionSQLQuery.UPDATE_ACCOUNT_WITHDRAW_QUERY)){
+                    ps.setDouble(1,transaction.getTransactionAmount());
+                    ps.setDouble(2,transaction.getTransactionAmount());
                     ps.setDouble(3,accountNumber);
-                    ps.addBatch();
-                    ps.setDouble(1,beneficiaryUpdatedValue);
-                    ps.setDouble(2,beneficiaryUpdatedValue);
-                    ps.setDouble(3,((TransferTransaction)transaction).getBeneficiaryAccountNumber());
-                    ps.addBatch();
-
-                    int[] rs=ps.executeBatch();
-                    isAmountUpdated=(rs[0]+rs[1])>0;
-                }catch(SQLException e){
-                    System.out.println(e.getMessage());
-                }
-            }
-
-            if(transaction instanceof WithdrawTransaction || transaction instanceof DepositTransaction){
-                try(PreparedStatement ps = connection.prepareStatement(TransactionSQLQuery.UPDATE_ACCOUNT_TRAN_QUERY)){
-                    ps.setDouble(1,updatedValue);
-                    ps.setDouble(2,accountNumber);
 
                     int rs=ps.executeUpdate();
                     isAmountUpdated=rs>0;
                 }catch(SQLException e){
                     System.out.println(e.getMessage());
                 }
+            }
+            if (transaction instanceof DepositTransaction || transaction instanceof TransferTransaction) {
+                //updatedValue=  availableBalance+transaction.getTransactionAmount();
+                try(PreparedStatement ps = connection.prepareStatement(TransactionSQLQuery.UPDATE_ACCOUNT_DEPOSIT_QUERY)){
+                    ps.setDouble(1,transaction.getTransactionAmount());
+                    ps.setDouble(2,transaction.getTransactionAmount());
+                    if(transaction instanceof TransferTransaction){
+                        ps.setDouble(3,((TransferTransaction)transaction).getBeneficiaryAccountNumber());
+                    }else{
+                        ps.setDouble(3,accountNumber);
+                    }
+
+                    int rs=ps.executeUpdate();
+                    isAmountUpdated=rs>0;
+                }catch(SQLException e){
+                    System.out.println(e.getMessage());
+                }
+//            }else{
+//                updatedValue=  availableBalance-transaction.getTransactionAmount();
+//                beneficiaryUpdatedValue=getBeneficiaryAccountBalance(connection,((TransferTransaction)transaction).getBeneficiaryAccountNumber())+transaction.getTransactionAmount();
+//
+//                try(PreparedStatement ps = connection.prepareStatement(TransactionSQLQuery.UPDATE_ACCOUNT_TRAN_QUERY)){
+//                    ps.setDouble(1,updatedValue);
+//                    ps.setDouble(2,updatedValue);
+//                    ps.setDouble(3,accountNumber);
+//                    ps.addBatch();
+//                    ps.setDouble(1,beneficiaryUpdatedValue);
+//                    ps.setDouble(2,beneficiaryUpdatedValue);
+//                    ps.setDouble(3,((TransferTransaction)transaction).getBeneficiaryAccountNumber());
+//                    ps.addBatch();
+//
+//                    int[] rs=ps.executeBatch();
+//                    isAmountUpdated=(rs[0]+rs[1])>0;
+//                }catch(SQLException e){
+//                    System.out.println(e.getMessage());
+//                }
+//            }
+//
+//            if(transaction instanceof WithdrawTransaction || transaction instanceof DepositTransaction){
+//                try(PreparedStatement ps = connection.prepareStatement(TransactionSQLQuery.UPDATE_ACCOUNT_TRAN_QUERY)){
+//                    ps.setDouble(1,updatedValue);
+//                    ps.setDouble(2,accountNumber);
+//
+//                    int rs=ps.executeUpdate();
+//                    isAmountUpdated=rs>0;
+//                }catch(SQLException e){
+//                    System.out.println(e.getMessage());
+//                }
             }
         }
 

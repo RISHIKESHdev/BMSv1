@@ -18,5 +18,6 @@ public class TransactionSQLQuery {
     public static final String GET_FD_ACCOUNT_DETAIL="SELECT available_Balance,mature_DateTime FROM Account JOIN Fixed_Deposit_Account ON Account.account_Number=Fixed_Deposit_Account.account_Number WHERE Account.account_Number=?";
     public static final String GET_SAVE_ACCOUNT_DETAIL="SELECT available_Balance,minimum_Account_Balance,withdrawal_Limit FROM Account JOIN Saving_Account ON Account.account_Number=Saving_Account.account_Number WHERE Account.account_Number=?";
     public static final String SELECT_BENEFICIARY_BALANCE = "SELECT available_Balance FROM Account WHERE Account.account_Number=?";
-    public static final String UPDATE_ACCOUNT_TRAN_QUERY="UPDATE Account SET available_Balance=?,current_Balance=? WHERE account_Number=?";
+    public static final String UPDATE_ACCOUNT_DEPOSIT_QUERY="UPDATE Account SET available_Balance=available_Balance+?,current_Balance=current_Balance+? WHERE account_Number=?";
+    public static final String UPDATE_ACCOUNT_WITHDRAW_QUERY="UPDATE Account SET available_Balance=available_Balance-?,current_Balance=current_Balance-? WHERE account_Number=?";
 }
