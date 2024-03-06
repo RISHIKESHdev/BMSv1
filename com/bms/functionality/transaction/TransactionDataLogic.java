@@ -99,15 +99,27 @@ public class TransactionDataLogic {
     private boolean validateCurrentTran(double transactionAmount,double availableBalance,double currentBalance,double overDraftLimit){
         boolean isValid=true;
 
+        if(availableBalance<transactionAmount && overDraftLimit<(transactionAmount-availableBalance)){
+            isValid=false;
+        }
+
         return isValid;
     }
     private boolean validateFDTran(double transactionAmount,double availableBalance,LocalDateTime matureDateTime){
         boolean isValid=true;
 
+        if(availableBalance<transactionAmount || Main.currentDateTime.isAfter(matureDateTime)){
+            isValid=false;
+        }
+
         return isValid;
     }
     private boolean validateSaveTran(double transactionAmount,double availableBalance,double minimumAccountBalance,double withdrawalLimit){
         boolean isValid=true;
+
+        if(availableBalance<transactionAmount || minimumAccountBalance>(availableBalance-transactionAmount) || withdrawalLimit<transactionAmount){
+            isValid=false;
+        }
 
         return isValid;
     }
